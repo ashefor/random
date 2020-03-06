@@ -1,0 +1,473 @@
+<div class="content-wrap">
+  <!--Top dashboard nav from /components/main/main-nav-->
+  <!--the title prop is a string set in the .ts file of this component. An example is "Manufacturer". This will show on the top dashboard nav-->
+  <app-main-nav [title]="title" [mode]="modeWatch | async" [componentInstance]="this"></app-main-nav>
+
+  <!--Main content here-->
+  <div class="container">
+    <div *ngIf="mode === modes[0]" class="sub-header mt-3">
+      <div>
+        Sort by
+        <select (change)="sort($event)" class="form-control form-control-sm">
+            <option value="all" selected>All</option>
+            <option *ngFor="let status of statuses" [value]="[status.value]">{{status.name}}</option>
+        </select>
+      </div>
+      <div>
+        <input type="text" class="form-control form-control-sm" (input)="search()" [(ngModel)]="query" [ngModelOptions]="{standalone: true}" placeholder="Search...">
+      </div>
+      <div>
+        <button class="btn btn-primary btn-sm float-right" (click)="setMode(1)">
+          <i class="fa fa-plus mr-1"></i>
+          New Task
+        </button>
+      </div>
+    </div>
+    
+    <div *ngIf="(mode === modes[0]) && ((tasks && tasks.length !== 0) && (query === ''))" class="row mt-5">
+      <div class="col-sm-6 col-lg-4 my-2 d-flex" *ngFor="let task of sorted | paginate: { itemsPerPage: 6, currentPage: p}">
+        <div class="card item-card flex-fill">
+          <div class="card-body">
+            <div class="item-card-info">
+              <div>
+                <h5 class="item-name">{{task.title}}</h5>
+                <p class="item-meta">{{task.description}}</p>
+                <span class="item-meta">
+                  {{computeDurationProps(task.ttl).qty}} {{computeDurationProps(task.ttl).type}}
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="card-footer">
+            <a [routerLink]="['/main/task/report/' + task._id]">
+              <b>View Report</b>
+            </a> &nbsp;
+            <a [routerLink]="['/main/task/responses/' + task._id]">
+              <b>{{task.responseCount}}</b> Responses
+            </a> &nbsp;
+            <button (click)="spawnEdit(task)" class="btn btn-outline-primary btn-xs">Edit</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div *ngIf="(mode === modes[0]) && ((tasks && tasks.length !== 0) && (query !== ''))" class="row mt-5">
+      <div class="col-sm-6 col-lg-4 my-2 d-flex" *ngFor="let task of queryArray | paginate: { itemsPerPage: 6, currentPage: p}">
+        <div class="card h-100 item-card flex-fill">
+          <div class="card-body">
+            <div class="item-card-info">
+              <div>
+                <h5 class="item-name">{{task.title}}</h5>
+                <p class="item-meta">{{task.description}}</p>
+                <span class="item-meta">
+                  {{computeDurationProps(task.ttl).qty}} {{computeDurationProps(task.ttl).type}}
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="card-footer">
+            <a [routerLink]="['/main/task/report/' + task._id]">
+              <b>View report</b>
+            </a> &nbsp;
+            <a [routerLink]="['/main/task/responses/' + task._id]">
+              <b>{{task.responseCount}}</b> Responses
+            </a> &nbsp;
+            <button (click)="spawnEdit(task)" class="btn btn-outline-primary btn-xs">Edit</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <ng-container *ngIf="(mode === modes[0]) && tasks">
+      <pagination-controls *ngIf="query !== '' && queryArray.length > 6" class="pagination" responsive="true" (pageChange)="p = $event"></pagination-controls>
+      <pagination-controls *ngIf="query === '' && sorted.length > 6" class="pagination" responsive="true" (pageChange)="p = $event"></pagination-controls>
+    </ng-container>
+    <div class="row justify-content-center">
+      <div class="col-12 col-md-6">
+        <div *ngIf="(mode === modes[0]) && tasks && tasks.length === 0" class="empty-state text-center mt-5">
+          <img src="../../../../assets/img/empty-data.svg">
+          <h5 class="mt-3">No tasks</h5>
+          <p>No tasks were found for this query. Please try another query or clear your filters.</p>
+        </div>
+        <div *ngIf="(mode === modes[0]) && !tasks" class="content-loader mt-5">
+          <span class="__1"></span>
+          <span class="__2"></span>
+          <span class="__3"></span>
+          <span class="__4"></span>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="mode === modes[1]" class="row form justify-content-center my-5">
+      <div class="col-12 col-md-7">
+        <div class="card panel-card">
+          <div class="card-header">
+            <h5 class="card-title">New Task</h5>
+            <button (click)="closeCreate(0)" class="btn btn-light btn-icon"><i class="fa fa-close"></i></button>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-12 col-md-6">
+                <div class="form-group">
+                  <label for="title">Title <span class="text-danger">*</span></label>
+                  <input name="title" class="form-control" id="title" aria-describedby="title" [(ngModel)]="create.title"
+                  #title="ngModel" [ngModelOptions]="{standalone: true}" />
+                  <small class="form-error" *ngIf="title.value === '' && (title.dirty || title.touched)">
+                    Enter a title!
+                  </small>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="form-group">
+                  <label for="status">Status <span class="text-danger">*</span></label>
+                  <select class="form-control" id="select" [(ngModel)]="create.status" #status="ngModel"
+                    [ngModelOptions]="{standalone: true}" name="status">
+                    <option value="select">-- Select Status --</option>
+                    <option *ngFor="let status of statuses" [value]="[status.value]">{{status.name}}</option>
+                  </select>
+                  <small class="form-error" *ngIf="status.value === 'select' && (status.dirty || status.touched)">
+                    Select a status
+                  </small>
+                </div>
+              </div>
+              <div class="col-12">
+                <div class="form-group">
+                  <label for="description">Description <span class="text-danger">*</span></label>
+                  <textarea id="description" aria-describedby="description" [(ngModel)]="create.description"
+                  #description="ngModel" [ngModelOptions]="{standalone: true}" name="description" class="form-control" rows="2"></textarea>
+                  <small class="form-error" *ngIf="description.value === '' && (description.dirty || description.touched)">
+                    Enter a description!
+                  </small>
+                </div>
+              </div>
+              <div class="col-12">
+                <div class="form-group-lg">
+                  <label for="image">Sample Image <span class="text-danger">*</span></label>
+                  <div (click)="showImage('create-img')" class="entry-image" *ngIf="createSrc"  [style.background-image]="'url(' + createSrc + ')'"></div>
+                  <img *ngIf="createSrc" id='create-img' [src]="createSrc" hidden ngxViewer>
+                  <div class="mt-3">
+                    <input (change)="preview($event)" name="files" id="files" type="file">
+                    <span *ngIf="!createImage" (click)="uploadFile('image')" class="btn btn-block btn-upload">
+                      <i class="fa fa-image mr-1"></i>
+                      Add Image
+                    </span>
+                    <span *ngIf="createImage" (click)="uploadFile('image')" class="btn btn-sm btn-upload">
+                      <i class="fa fa-pencil mr-1"></i>
+                      Change Image
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12">
+                <div class="form-group-lg">
+                  <label for="postImage">Feed Image</label>
+                  <span class="form-helper">This image will be displayed on the retailer's feed. We recommend a 1024 x 512 pixel JPG or PNG, under 1 MB in size.</span>
+                  <div (click)="showImage('create-post-img')" class="entry-image" *ngIf="createPostSrc"  [style.background-image]="'url(' + createPostSrc + ')'"></div>
+                  <img *ngIf="createPostSrc" id='create-post-img' [src]="createPostSrc" hidden ngxViewer>
+                  <div class="mt-3">
+                    <input (change)="previewPost($event)" name="files" id="postFiles" type="file">
+                    <span *ngIf="!createPostImage" (click)="uploadFile('postImage')" class="btn btn-block btn-upload">
+                      <i class="fa fa-image mr-1"></i>
+                      Add Image
+                    </span>
+                    <span *ngIf="createPostImage" (click)="uploadFile('postImage')" class="btn btn-sm btn-upload">
+                      <i class="fa fa-pencil mr-1"></i>
+                      Change Image
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="form-group">
+                  <label for="duration">Duration <span class="text-danger">*</span></label>
+                  <div class="input-group">
+                    <input name="qty" type="number" class="form-control" id="qty" aria-describedby="qty" [(ngModel)]="create.durationQty" #qty="ngModel" [ngModelOptions]="{standalone: true}" />
+                    <select class="form-control" id="select" [(ngModel)]="create.durationType" #type="ngModel"
+                    [ngModelOptions]="{standalone: true}" name="type">
+                    <option *ngFor="let type of durationTypes" [value]="[type]">{{type}}</option>
+                  </select>
+                  </div>
+                  
+                  <small class="form-error" *ngIf="(qty.value === 0 || qty.value === '') && (qty.dirty || qty.touched)">
+                    Enter a value!
+                  </small>
+                  <small class="form-error" *ngIf="type.value === 'select' && (type.dirty || type.touched)">
+                    Select a type!
+                  </small>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="form-group">
+                  <label for="period">Period <span class="text-danger">*</span></label>
+                  <div class="input-group">
+                    <input name="periodqty" type="number" class="form-control" id="periodqty" aria-describedby="periodqty" [(ngModel)]="create.periodQty" #periodqty="ngModel" [ngModelOptions]="{standalone: true}" />
+                    <select class="form-control" id="periodselect" [(ngModel)]="create.periodType" #periodtype="ngModel"
+                    [ngModelOptions]="{standalone: true}" name="periodtype">
+                      <option *ngFor="let type of durationTypes" [value]="[type]">{{type}}</option>
+                    </select>
+                  </div>
+
+                  <small class="form-error" *ngIf="(periodqty.value === 0 || periodqty.value === '') && (periodqty.dirty || periodqty.touched)">
+                    Enter a value!
+                  </small>
+                  <small class="form-error" *ngIf="periodtype.value === 'select' && (periodtype.dirty || periodtype.touched)">
+                    Select a type!
+                  </small>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="form-group">
+                  <label for="store">Store Type <span class="text-danger">*</span></label>
+                  <select class="form-control" id="store" [(ngModel)]="create.storeType" #store="ngModel"
+                    [ngModelOptions]="{standalone: true}" name="store">
+                    <option value="select">-- Store Type --</option>
+                    <option value="*">All store types</option>
+                    <option *ngFor="let store of storeTypes" [value]="[store._id]">{{store.name}}</option>
+                  </select>
+                  <small class="form-error" *ngIf="store.value === 'select' && (store.dirty || store.touched)">
+                    Select a store type
+                  </small>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="form-group">
+                  <label for="cash">Reward <span class="text-danger">*</span></label>
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text">NGN</span>
+                    </div>
+                    <input type="number" class="form-control" id="cash" [(ngModel)]="create.rewardCash" [ngModelOptions]="{standalone: true}" name="cash" />
+                  </div>
+                </div>
+              </div>
+              <!-- <div class="col-12 col-md-6">
+                <div class="form-group">
+                  <label for="points">Reward (Points)</label>
+                  <input type="number" class="form-control" id="points" [(ngModel)]="create.rewardPoints" [ngModelOptions]="{standalone: true}"
+                    name="points" />
+                </div>
+              </div> -->
+              <div class="col-12">
+                <label for="metadata">Meta Data <span class="text-danger">*</span></label>
+                <span class="form-helper">Meta Data attributes for task verification and approval</span>
+
+                <div *ngIf="createMeta.length !== 0" class="row mt-3">
+                  <div *ngFor="let meta of createMeta" class="col-12">
+                    <div class="form-group-sm">
+                      <div class="input-group">
+                        <input class="form-control" placeholder="Meta Data Question" [(ngModel)]="meta.value" [ngModelOptions]="{standalone: true}" />
+                        <div class="input-group-append">
+                          <button (click)="removeCreateMeta(meta.id)" class="btn btn-danger h-100"> <i class="fa fa-trash"></i> </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div (click)="addCreateMeta()" class="btn btn-sm btn-upload mt-2">
+                  <i class="fa fa-plus mr-1"></i>
+                  Add Meta Data
+                </div>
+
+              </div>
+            </div>
+          </div>
+          <div class="card-footer">
+            <button [disabled]="checkValid(create) === false" (click)="createAction()" type="submit" class="btn btn-primary">
+              Create
+            </button>
+            <button (click)="closeCreate(0)" class="btn btn-light float-right">
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div *ngIf="mode === modes[2]" class="row form justify-content-center my-5">
+      <div class="col-12 col-md-7">
+        <div class="card panel-card">
+          <div class="card-header">
+            <h5 class="card-title">Edit Task</h5>
+            <button (click)="closeEdit(0)" class="btn btn-light btn-icon"><i class="fa fa-close"></i></button>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-12 col-md-6">
+                <div class="form-group">
+                  <label for="title">Title <span class="text-danger">*</span></label>
+                  <input name="title" class="form-control" id="title" aria-describedby="title" [(ngModel)]="edit.title"
+                  #title="ngModel" [ngModelOptions]="{standalone: true}" />
+                  <small class="form-error" *ngIf="title.value === '' && (title.dirty || title.touched)">
+                    Enter a title!
+                  </small>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="form-group">
+                  <label for="status">Status <span class="text-danger">*</span></label>
+                  <select class="form-control" id="select" [(ngModel)]="edit.status" #status="ngModel"
+                    [ngModelOptions]="{standalone: true}" name="status">
+                    <option value="select">-- Select Status --</option>
+                    <option *ngFor="let status of statuses" [value]="[status.value]">{{status.name}}</option>
+                  </select>
+                  <small class="form-error" *ngIf="status.value === 'select' && (status.dirty || status.touched)">
+                    Select a status
+                  </small>
+                </div>
+              </div>
+              <div class="col-12">
+                <div class="form-group">
+                  <label for="description">Description <span class="text-danger">*</span></label>
+                  <textarea id="description" aria-describedby="description" [(ngModel)]="edit.description"
+                  #description="ngModel" [ngModelOptions]="{standalone: true}" name="description" class="form-control" rows="2"></textarea>
+                  <small class="form-error" *ngIf="description.value === '' && (description.dirty || description.touched)">
+                    Enter a description!
+                  </small>
+                </div>
+              </div>
+              <div class="col-12">
+                <div class="form-group-lg">
+                  <label for="image">Image <span class="text-danger">*</span></label>
+                  <div (click)="showImage('edit-img')" class="entry-image" *ngIf="editSrc"  [style.background-image]="'url(' + editSrc + ')'"></div>
+                  <img *ngIf="editSrc" id='edit-img' [src]="editSrc" hidden ngxViewer>
+                  <div class="mt-3">
+                    <input (change)="preview($event)" name="files" id="files" type="file">
+                    <span *ngIf="!editSrc" (click)="uploadFile('image')" class="btn btn-block btn-upload">
+                      <i class="fa fa-image mr-1"></i>
+                      Add Image
+                    </span>
+                    <span *ngIf="editSrc" (click)="uploadFile('image')" class="btn btn-sm btn-upload">
+                      <i class="fa fa-pencil mr-1"></i>
+                      Change Image
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12">
+                <div class="form-group-lg">
+                  <label for="postImage">Feed Image</label>
+                  <span class="form-helper">This image will be displayed on the retailer's feed. We recommend a 1024 x 512 pixel JPG or PNG, under 1 MB in size.</span>
+                  <div (click)="showImage('edit-post-img')" class="entry-image" *ngIf="editPostSrc"  [style.background-image]="'url(' + editPostSrc + ')'"></div>
+                  <img *ngIf="editPostSrc" id='edit-post-img' [src]="editPostSrc" hidden ngxViewer>
+                  <div class="mt-3">
+                    <input (change)="previewPost($event)" name="files" id="postFiles" type="file">
+                    <span *ngIf="!editPostSrc" (click)="uploadFile('postImage')" class="btn btn-block btn-upload">
+                      <i class="fa fa-image mr-1"></i>
+                      Add Image
+                    </span>
+                    <span *ngIf="editPostSrc" (click)="uploadFile('postImage')" class="btn btn-sm btn-upload">
+                      <i class="fa fa-pencil mr-1"></i>
+                      Change Image
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="form-group">
+                  <label for="duration">Duration <span class="text-danger">*</span></label>
+                  <div class="input-group">
+                    <input name="qty" type="number" class="form-control" id="qty" aria-describedby="qty" [(ngModel)]="edit.durationQty" #qty="ngModel" [ngModelOptions]="{standalone: true}" />
+                    <select class="form-control" id="select" [(ngModel)]="edit.durationType" #type="ngModel"
+                    [ngModelOptions]="{standalone: true}" name="type">
+                      <option *ngFor="let type of durationTypes" [value]="[type]">{{type}}</option>
+                    </select>
+                  </div>
+
+                  <small class="form-error" *ngIf="(qty.value === 0 || qty.value === '') && (qty.dirty || qty.touched)">
+                    Enter a value!
+                  </small>
+                  <small class="form-error" *ngIf="type.value === 'select' && (type.dirty || type.touched)">
+                    Select a type!
+                  </small>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="form-group">
+                  <label for="period">Period <span class="text-danger">*</span></label>
+                  <div class="input-group">
+                    <input name="periodqty" class="form-control" id="periodqty" aria-describedby="periodqty" [(ngModel)]="edit.periodQty" #periodqty="ngModel" [ngModelOptions]="{standalone: true}" />
+                    <select class="form-control" id="periodselect" [(ngModel)]="edit.periodType" #periodtype="ngModel"
+                    [ngModelOptions]="{standalone: true}" name="periodtype">
+                      <option *ngFor="let type of durationTypes" [value]="[type]">{{type}}</option>
+                    </select>
+                  </div>
+
+                  <small class="form-error" *ngIf="(periodqty.value === 0 || periodqty.value === '') && (periodqty.dirty || periodqty.touched)">
+                    Enter a value!
+                  </small>
+                  <small class="form-error" *ngIf="periodtype.value === 'select' && (periodtype.dirty || periodtype.touched)">
+                    Select a type!
+                  </small>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="form-group">
+                  <label for="store">Store Type <span class="text-danger">*</span></label>
+                  <select class="form-control" id="store" [(ngModel)]="edit.storeType" #store="ngModel"
+                    [ngModelOptions]="{standalone: true}" name="store">
+                    <option value="select">-- Store Type --</option>
+                    <option value="*">All store types</option>
+                    <option *ngFor="let store of storeTypes" [value]="[store._id]">{{store.name}}</option>
+                  </select>
+                  <small class="form-error" *ngIf="store.value === 'select' && (store.dirty || store.touched)">
+                    Select a store type
+                  </small>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="form-group">
+                  <label for="cash">Reward <span class="text-danger">*</span></label>
+                  <div class="input-group">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text">NGN</span>
+                      </div>
+                      <input type="number" class="form-control" id="cash" [(ngModel)]="edit.rewardCash" [ngModelOptions]="{standalone: true}" name="cash" />
+                  </div>
+                </div>
+              </div>
+              <!-- <div class="col-12 col-md-6">
+                <div class="form-group">
+                  <label for="points">Reward (Points)</label>
+                  <input type="number" class="form-control" id="points" [(ngModel)]="edit.rewardPoints" [ngModelOptions]="{standalone: true}" name="points" />
+                </div>
+              </div> -->
+              <div class="col-12">
+                <label for="metadata">Meta Data <span class="text-danger">*</span></label>
+                <span class="form-helper">Meta Data attributes for task verification and approval</span>
+
+                <div *ngIf="editMeta" class="row mt-3">
+                  <div *ngFor="let meta of editMeta" class="col-12">
+                    <div class="form-group-sm">
+                      <div class="input-group">
+                        <input class="form-control" placeholder="Meta Data Question" [(ngModel)]="meta.value" [ngModelOptions]="{standalone: true}" />
+                        <div class="input-group-append">
+                          <button (click)="removeEditMeta(meta)" class="btn btn-danger h-100"> <i class="fa fa-trash"></i> </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div (click)="addEditMeta()" class="btn btn-sm btn-upload mt-2">
+                  <i class="fa fa-plus mr-1"></i>
+                  Add Meta Data
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card-footer">
+            <div>
+              <button [disabled]="checkValid(edit) === false" (click)="editAction()" type="submit" class="btn btn-primary">
+                Update
+              </button>
+              <button (click)="closeEdit(0)" class="btn btn-light ml-2"> Cancel </button>
+            </div>
+            <button class="btn btn-danger btn-sm" (click)="spawnDelete(currentTask._id)">
+              <i class="fa fa-trash mr-1"></i>
+              Delete
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

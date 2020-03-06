@@ -1,0 +1,525 @@
+<div class="content-wrap">
+  <!--Top dashboard nav from /components/main/main-nav-->
+  <!--the title prop is a string set in the .ts file of this component. An example is "Manufacturer". This will show on the top dashboard nav-->
+  <app-main-nav [title]="title" [mode]="modeWatch | async" [componentInstance]="this"></app-main-nav>
+
+  <!--Main content here-->
+  <div *ngIf="group !== 'manager'" class="container">
+    <div *ngIf="mode === modes[0]" class="sub-header mt-3">
+      <div>
+        Sort by
+        <select (change)="sort($event)" class="form-control form-control-sm">
+          <option value="all" selected>All</option>
+          <option *ngFor="let status of statuses" [value]="[status.value]">{{status.name}}</option>
+        </select>
+      </div>
+      <div *ngIf="!manufacturerId">
+        Sort by
+        <select (change)="sortByManufacturer($event)" class="form-control form-control-sm">
+          <option value="all" selected>All</option>
+          <option *ngFor="let manufacturer of manufacturers" [value]="[manufacturer._id]">{{manufacturer.name}}</option>
+        </select>
+      </div>
+      <div>
+        <input type="text" class="form-control-sm form-control" [class.float-right]="manufacturerId" (input)="search()"
+          [(ngModel)]="query" [ngModelOptions]="{standalone: true}" placeholder="Search...">
+      </div>
+      <div *ngIf="!manufacturerId">
+        <button class="btn btn-primary btn-sm float-right" (click)="setMode(1)">
+          Add Distributor
+        </button>
+      </div>
+    </div>
+
+    <!-- <div *ngIf="(mode === modes[0]) && ((sellers && sellers.length !== 0) && (query === ''))" class="row mt-5">
+      <div class="col-sm-6 col-lg-4 my-2" *ngFor="let seller of sorted | paginate: { itemsPerPage: 6, currentPage: p}">
+        <div class="card item-card">
+          <div class="card-body">
+            <div class="item-card-info">
+              <div>
+                <h5 class="item-name">{{seller.name}}</h5>
+                <span *ngIf="!manufacturerId" class="item-meta">{{seller.manufacturer}}</span>
+                <span class="item-meta">{{seller.address}}</span>
+                <span *ngIf="!manufacturerId" class="item-meta">Account manager: {{seller.managerName}}</span>
+              </div>
+            </div>
+          </div>
+          <div *ngIf="!manufacturerId" class="card-footer">
+            <a [routerLink]="['/main/distributors/areas/' + seller._id]" routerLinkActive="router-link-active" >Areas</a> &nbsp;
+            <button (click)="spawnEdit(seller)" class="btn btn-outline-primary btn-xs">Edit</button>
+          </div>
+        </div>
+      </div>
+    </div> -->
+    <div class="card" *ngIf="(mode === modes[0]) && ((sellers && sellers.length !== 0) && (query === ''))">
+      <div class="card-body">
+        <table class="table table-hover" *ngIf="sorted.length !== 0">
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Distributor</th>
+              <th scope="col">Manager</th>
+              <th scope="col">Manufacturer</th>
+              <th scope="col">Status</th>
+              <th scope="col">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let seller of sorted | paginate: { itemsPerPage: 6, currentPage: p}, let i = index">
+              <td>{{i+1}}</td>
+              <td>{{seller.name}}</td>
+              <td>{{seller.managerName}}</td>
+              <td>{{seller.manufacturer}}</td>
+              <td [style.color]="(seller.status === 'active') ? 'green' : 'red'">{{seller.status | titlecase}}</td>
+              <td class="d-flex">
+                <a role="button" class="btn btn-outline-primary btn-xs mr-1"
+                  [routerLink]="['/main/distributors/areas/' + seller._id]">Areas</a>
+                <button (click)="spawnEdit(seller)" class="btn btn-outline-primary btn-xs">Edit</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <div *ngIf="sorted.length === 0">
+          <div class="empty-state text-center">
+            <img src="../../../../assets/img/empty-data.svg">
+            <h5 class="mt-3">No distributors</h5>
+            <p>No distributors were found for this query. Please try another query or clear your filters.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- <div *ngIf="(mode === modes[0]) && ((sellers && sellers.length !== 0) && (query !== ''))" class="row mt-5">
+      <div class="col-sm-6 col-lg-4 my-2" *ngFor="let seller of queryArray | paginate: { itemsPerPage: 6, currentPage: p}">
+        <div class="card item-card">
+          <div class="card-body">
+            <div class="item-card-info">
+              <div>
+                  <h5 class="item-name">{{seller.name}}</h5>
+                  <span *ngIf="!manufacturerId" class="item-meta">{{seller.manufacturer}}</span>
+                  <span class="item-meta">{{seller.address}}</span>
+                  <span *ngIf="!manufacturerId" class="item-meta">Account manager: {{seller.managerName}}</span>
+              </div>
+            </div>
+          </div>
+          <div *ngIf="!manufacturerId" class="card-footer">
+            <a [routerLink]="['/main/distributors/areas/' + seller._id]" routerLinkActive="router-link-active" >Areas</a> &nbsp;
+            <button (click)="spawnEdit(seller)" class="btn btn-outline-primary btn-xs">Edit</button>
+          </div>
+        </div>
+      </div>
+    </div> -->
+    <div class="card" *ngIf="(mode === modes[0]) && ((sellers && sellers.length !== 0) && (query !== ''))">
+      <div class="card-body">
+        <table class="table table-hover" *ngIf="queryArray.length !== 0">
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Distributor</th>
+              <th scope="col">Manager</th>
+              <th scope="col">Manufacturer</th>
+              <th scope="col">Status</th>
+              <th scope="col">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let seller of queryArray | paginate: { itemsPerPage: 6, currentPage: p}, let i = index">
+              <td>{{i+1}}</td>
+              <td>{{seller.name}}</td>
+              <td>{{seller.managerName}}</td>
+              <td>{{seller.manufacturer}}</td>
+              <td [style.color]="(seller.status === 'active') ? 'green' : 'red'">{{seller.status | titlecase}}</td>
+              <td class="d-flex">
+                <a role="button" class="btn btn-outline-primary btn-xs mr-1"
+                  [routerLink]="['/main/distributors/areas/' + seller._id]">Areas</a> &nbsp;
+                <button (click)="spawnEdit(seller)" class="btn btn-outline-primary btn-xs">Edit</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <div *ngIf="queryArray.length === 0">
+          <div class="empty-state text-center">
+            <img src="../../../../assets/img/empty-data.svg">
+            <h5 class="mt-3">No distributors</h5>
+            <p>No distributors were found for this query. Please try another query or clear your filters.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <ng-container *ngIf="(mode === modes[0]) && sellers">
+      <pagination-controls *ngIf="query !== '' && queryArray.length > 6" class="pagination" responsive="true"
+        (pageChange)="p = $event"></pagination-controls>
+      <pagination-controls *ngIf="query === '' && sorted.length > 6" class="pagination" responsive="true"
+        (pageChange)="p = $event"></pagination-controls>
+    </ng-container>
+    <div class="row justify-content-center mt-5">
+      <div class="col-12 col-md-6">
+        <div *ngIf="(mode === modes[0]) && sellers && sellers.length === 0" class="empty-state text-center">
+          <img src="../../../../assets/img/empty-data.svg">
+          <h5 class="mt-3">No distributors</h5>
+          <p>No distributors were found for this query. Please try another query or clear your filters.</p>
+        </div>
+        <div *ngIf="(mode === modes[0]) && !sellers" class="content-loader">
+          <span class="__1"></span>
+          <span class="__2"></span>
+          <span class="__3"></span>
+          <span class="__4"></span>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="mode === modes[2] && !manufacturerId" class="row mt-3">
+      <div class="col-md-12">
+        <button class="btn btn-danger btn-sm float-right" (click)="spawnDelete(currentSeller._id)">
+          Delete Distributor
+        </button>
+      </div>
+    </div>
+
+    <div *ngIf="mode === modes[2] && !manufacturerId" class="row form justify-content-center my-5">
+      <div class="col-12 col-md-7">
+        <div class="card panel-card">
+          <div class="card-header">
+            <h5 class="card-title">Edit Distributor</h5>
+          </div>
+          <div class="card-body">
+            <div class="row mt-3"></div>
+            <div class="row">
+              <div class="col-12 col-md-6">
+                <div class="form-group">
+                  <label for="name">Name</label>
+                  <input name="name" class="form-control" id="name" aria-describedby="name" [(ngModel)]="edit.name"
+                    #name="ngModel" [ngModelOptions]="{standalone: true}" />
+                  <small class="form-error" *ngIf="name.value === '' && (name.dirty || name.touched)">
+                    Enter a name!
+                  </small>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="form-group">
+                  <label for="status">Status</label>
+                  <select class="form-control" id="select" [(ngModel)]="edit.status" #status="ngModel"
+                    [ngModelOptions]="{standalone: true}" name="status">
+                    <option value="select">-- Select a status --</option>
+                    <option *ngFor="let status of statuses" [value]="[status.value]">{{status.name}}</option>
+                  </select>
+                  <small class="form-error" *ngIf="status.value === 'select' && (status.dirty || status.touched)">
+                    Select a status
+                  </small>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="form-group">
+                  <label for="man">Manufacturer</label>
+                  <select class="form-control" id="man" [(ngModel)]="edit.manufacturer_id" #man="ngModel"
+                    [ngModelOptions]="{standalone: true}" name="man">
+                    <option value="select">-- Select a manufacturer --</option>
+                    <option *ngFor="let manufacturer of manufacturers" [value]="[manufacturer._id]">
+                      {{manufacturer.name}}</option>
+                  </select>
+                  <small class="form-error" *ngIf="man.value === 'select' && (man.dirty || man.touched)">
+                    Select a manufacturer
+                  </small>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="form-group">
+                  <label for="manager">Account Manager</label>
+                  <select class="form-control" id="manager" [(ngModel)]="edit.manager_id" #manager="ngModel"
+                    [ngModelOptions]="{standalone: true}" name="manager">
+                    <option value="select">-- Select an account manager --</option>
+                    <option *ngFor="let manager of managers" [value]="[manager._id]">{{manager.name}}</option>
+                  </select>
+                  <small class="form-error" *ngIf="manager.value === 'select' && (manager.dirty || manager.touched)">
+                    Select an account manager
+                  </small>
+                </div>
+              </div>
+              <div class="col-12">
+                <div class="form-group">
+                  <label for="address">Address</label>
+                  <textarea id="addr" aria-describedby="address" [(ngModel)]="edit.address" #addr="ngModel"
+                    [ngModelOptions]="{standalone: true}" name="address" class="form-control" rows="2"></textarea>
+                  <small class="form-error" *ngIf="addr.value === '' && (addr.dirty || addr.touched)">
+                    Enter an address!
+                  </small>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card-footer">
+            <button [disabled]="checkValid(edit) === false" (click)="editAction()" type="submit"
+              class="btn btn-primary">
+              Submit
+            </button>
+            <button (click)="closeEdit(0)" class="btn btn-light float-right">
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="mode === modes[1] && !manufacturerId" class="row form justify-content-center my-5">
+      <div class="col-12 col-md-7">
+        <div class="card panel-card">
+          <div class="card-header">
+            <h5 class="card-title">New Distributor</h5>
+          </div>
+          <div class="card-body">
+            <div class="row mt-3"></div>
+            <div class="row">
+              <div class="col-12 col-md-6">
+                <div class="form-group">
+                  <label for="name">Name</label>
+                  <input name="name" class="form-control" id="name" aria-describedby="name" [(ngModel)]="create.name"
+                    #name="ngModel" [ngModelOptions]="{standalone: true}" />
+                  <small class="form-error" *ngIf="name.value === '' && (name.dirty || name.touched)">
+                    Enter a name!
+                  </small>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="form-group">
+                  <label for="status">Status</label>
+                  <select class="form-control" id="select" [(ngModel)]="create.status" #status="ngModel"
+                    [ngModelOptions]="{standalone: true}" name="status">
+                    <option value="select">-- Select a status --</option>
+                    <option *ngFor="let status of statuses" [value]="[status.value]">{{status.name}}</option>
+                  </select>
+                  <small class="form-error" *ngIf="status.value === 'select' && (status.dirty || status.touched)">
+                    Select a status
+                  </small>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="form-group">
+                  <label for="man">Manufacturer</label>
+                  <select class="form-control" id="man" [(ngModel)]="create.manufacturer_id" #man="ngModel"
+                    [ngModelOptions]="{standalone: true}" name="man">
+                    <option value="select">-- Select a manufacturer --</option>
+                    <option *ngFor="let manufacturer of manufacturers" [value]="[manufacturer._id]">
+                      {{manufacturer.name}}</option>
+                  </select>
+                  <small class="form-error" *ngIf="man.value === 'select' && (man.dirty || man.touched)">
+                    Select a manufacturer
+                  </small>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="form-group">
+                  <label for="manager">Account Manager</label>
+                  <select class="form-control" id="manager" [(ngModel)]="create.manager_id" #manager="ngModel"
+                    [ngModelOptions]="{standalone: true}" name="manager">
+                    <option value="select">-- Select an account manager --</option>
+                    <option *ngFor="let manager of managers" [value]="[manager._id]">{{manager.name}}</option>
+                  </select>
+                  <small class="form-error" *ngIf="manager.value === 'select' && (manager.dirty || manager.touched)">
+                    Select an account manager
+                  </small>
+                </div>
+              </div>
+              <div class="col-12">
+                <div class="form-group">
+                  <label for="address">Address</label>
+                  <textarea id="addr" aria-describedby="address" [(ngModel)]="create.address" #addr="ngModel"
+                    [ngModelOptions]="{standalone: true}" name="address" class="form-control" rows="2"></textarea>
+                  <small class="form-error" *ngIf="addr.value === '' && (addr.dirty || addr.touched)">
+                    Enter an address!
+                  </small>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card-footer">
+            <button [disabled]="checkValid(create) === false" (click)="createAction()" type="submit"
+              class="btn btn-primary">
+              Create
+            </button>
+            <button (click)="closeCreate(0)" class="btn btn-light float-right">
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div *ngIf="group === 'manager'" class="container">
+    <div *ngIf="mode === modes[0]" class="sub-header mt-3">
+      <div>
+        Sort by
+        <select (change)="sort($event)" class="form-control form-control-sm">
+          <option value="all" selected>All</option>
+          <option *ngFor="let status of statuses" [value]="[status.value]">{{status.name}}</option>
+        </select>
+      </div>
+      <div>
+        Sort by
+        <select (change)="sortByManufacturer($event)" class="form-control form-control-sm">
+          <option value="all" selected>All</option>
+          <option *ngFor="let manufacturer of manufacturers" [value]="[manufacturer._id]">{{manufacturer.name}}</option>
+        </select>
+      </div>
+      <div>
+        <input type="text" class="form-control-sm form-control float-right" (input)="search()" [(ngModel)]="query"
+          [ngModelOptions]="{standalone: true}" placeholder="Search...">
+      </div>
+    </div>
+
+    <div *ngIf="(mode === modes[0]) && ((sellers && sellers.length !== 0) && (query === ''))" class="row mt-5">
+      <div class="col-sm-6 col-lg-4 my-2" *ngFor="let seller of sorted | paginate: { itemsPerPage: 6, currentPage: p}">
+        <div class="card item-card">
+          <div class="card-body">
+            <div class="item-card-info">
+              <div>
+                <h5 class="item-name">{{seller.name}}</h5>
+                <span class="item-meta">{{seller.manufacturer}}</span>
+                <span class="item-meta">{{seller.address}}</span>
+              </div>
+              <!-- <img class="avatar avatar-lg float-right" [src]="[manufacturer.image]" alt=""> -->
+            </div>
+          </div>
+          <div class="card-footer">
+            <div class="d-flex justify-content-between">
+              <a class="btn btn-outline-primary btn-xs" [routerLink]="['/main/distributors/areas/' + seller._id]"
+                routerLinkActive="router-link-active">Areas</a> &nbsp;
+              <a class="btn btn-outline-primary btn-xs"
+                [routerLink]="['/main/stats/orders/' + seller.name + '/' + seller._id]"
+                routerLinkActive="router-link-active">Order Stats</a>
+            </div>
+            <div class="d-flex justify-content-between">
+              <a href="" role="button" class="btn btn-primary btn-xs" routerLink="details/{{seller._id}}">View</a>
+              &nbsp;
+              <button (click)="spawnEdit(seller)" class="btn btn-outline-primary btn-xs">Edit</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div *ngIf="(mode === modes[0]) && ((sellers && sellers.length !== 0) && (query !== ''))" class="row mt-5">
+      <div class="col-sm-6 col-lg-4 my-2"
+        *ngFor="let seller of queryArray | paginate: { itemsPerPage: 6, currentPage: p}">
+        <div class="card item-card">
+          <div class="card-body">
+            <div class="item-card-info">
+              <div>
+                <h5 class="item-name">{{seller.name}}</h5>
+                <span class="item-meta">{{seller.manufacturer}}</span>
+                <span class="item-meta">{{seller.address}}</span>
+              </div>
+              <!-- <img class="avatar avatar-lg float-right" [src]="[manufacturer.image]" alt=""> -->
+            </div>
+          </div>
+          <div class="card-footer">
+            <div class="d-flex justify-content-between">
+              <a class="btn btn-outline-primary btn-xs" [routerLink]="['/main/distributors/areas/' + seller._id]"
+                routerLinkActive="router-link-active">Areas</a>
+              <a class="btn btn-outline-primary btn-xs"
+                [routerLink]="['/main/stats/orders/' + seller.name + '/' + seller._id]"
+                routerLinkActive="router-link-active">Order Stats</a>
+            </div>
+            <div class="d-flex justify-content-between">
+              <a href="" class="btn btn-primary btn-xs" routerLink="details/{{seller._id}}">View</a>
+              <button (click)="spawnEdit(seller)" class="btn btn-outline-primary btn-xs">Edit</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <ng-container *ngIf="(mode === modes[0]) && sellers">
+      <pagination-controls *ngIf="query !== '' && queryArray.length > 6" class="pagination" responsive="true"
+        (pageChange)="p = $event"></pagination-controls>
+      <pagination-controls *ngIf="query === '' && sorted.length > 6" class="pagination" responsive="true"
+        (pageChange)="p = $event"></pagination-controls>
+    </ng-container>
+    <div class="row justify-content-center mt-5">
+      <div class="col-12 col-md-6">
+        <div *ngIf="(mode === modes[0]) && sellers && sellers.length === 0" class="empty-state text-center">
+          <img src="../../../../assets/img/empty-data.svg">
+          <h5 class="mt-3">No distributors</h5>
+          <p>No distributors were found for this query. Please try another query or clear your filters.</p>
+        </div>
+        <div *ngIf="(mode === modes[0]) && !sellers" class="content-loader">
+          <span class="__1"></span>
+          <span class="__2"></span>
+          <span class="__3"></span>
+          <span class="__4"></span>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="mode === modes[2]" class="row mt-3">
+      <div class="col-md-12">
+        <button class="btn btn-danger btn-sm float-right" (click)="spawnDelete(currentSeller._id)">
+          Delete Distributor
+        </button>
+      </div>
+    </div>
+
+    <div *ngIf="mode === modes[2]" class="row form justify-content-center my-5">
+      <div class="col-12 col-md-7">
+        <div class="card panel-card">
+          <div class="card-header">
+            <h5 class="card-title">Edit Distributor</h5>
+          </div>
+          <div class="card-body">
+            <div class="row mt-3"></div>
+            <div class="row">
+              <div class="col-12 col-md-6">
+                <div class="form-group">
+                  <label for="name">Name</label>
+                  <input disabled name="name" class="form-control" id="name" aria-describedby="name"
+                    [(ngModel)]="edit.name" #name="ngModel" [ngModelOptions]="{standalone: true}" />
+                  <small class="form-error" *ngIf="name.value === '' && (name.dirty || name.touched)">
+                    Enter a name!
+                  </small>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="form-group">
+                  <label for="status">Status</label>
+                  <select disabled class="form-control" id="select" [(ngModel)]="edit.status" #status="ngModel"
+                    [ngModelOptions]="{standalone: true}" name="status">
+                    <option value="select">-- Select a status --</option>
+                    <option *ngFor="let status of statuses" [value]="[status.value]">{{status.name}}</option>
+                  </select>
+                  <small class="form-error" *ngIf="status.value === 'select' && (status.dirty || status.touched)">
+                    Select a status
+                  </small>
+                </div>
+              </div>
+              <div class="col-12">
+                <div class="form-group">
+                  <label for="man">Manufacturer</label>
+                  <select disabled class="form-control" id="man" [(ngModel)]="edit.manufacturer_id" #man="ngModel"
+                    [ngModelOptions]="{standalone: true}" name="man">
+                    <option value="select">-- Select a manufacturer --</option>
+                    <option *ngFor="let manufacturer of manufacturers" [value]="[manufacturer._id]">
+                      {{manufacturer.name}}</option>
+                  </select>
+                  <small class="form-error" *ngIf="man.value === 'select' && (man.dirty || man.touched)">
+                    Select a manufacturer
+                  </small>
+                </div>
+              </div>
+              <div class="col-12">
+                <div class="form-group">
+                  <label for="address">Address</label>
+                  <textarea disabled id="addr" aria-describedby="address" [(ngModel)]="edit.address" #addr="ngModel"
+                    [ngModelOptions]="{standalone: true}" name="address" class="form-control" rows="2"></textarea>
+                  <small class="form-error" *ngIf="addr.value === '' && (addr.dirty || addr.touched)">
+                    Enter an address!
+                  </small>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card-footer">
+            <button (click)="closeEdit(0)" class="btn btn-light float-right">
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

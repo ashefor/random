@@ -1,0 +1,9 @@
+.item-type {
+  opacity: .7;
+}
+
+.item-question {
+  display: block;
+  font-size: 14px;
+  margin-top: 10px;
+}

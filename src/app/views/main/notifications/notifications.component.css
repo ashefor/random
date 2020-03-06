@@ -1,0 +1,10 @@
+.center {
+  margin: auto;
+  display: block;
+}
+
+input[type="checkbox"] {
+  margin-left: 6px;
+  position: absolute;
+  top: 2.2px;
+}

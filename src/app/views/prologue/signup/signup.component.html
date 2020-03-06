@@ -1,0 +1,51 @@
+<div class="app login-page py-5">
+
+  <section class="login-section my-5">
+
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-12">
+
+          <div class="card panel-card">
+            <div class="card-body mt-3">
+              <div class="text-center">
+                <img src="../../../../assets/img/suplias-logo.svg" style="width:110px" alt="">
+                <p class="login-title">Log in to Suplias</p>
+              </div>
+              <form (submit)="loginSubmit()">
+                <div class="col-12 mt-4 px-3">
+                  <div class="form-group">
+                    <input type="number" [(ngModel)]="phone" #Phone="ngModel" [ngModelOptions]="{standalone: true}"
+                      (input)="parsePhone($event)" class="form-control" placeholder="Your phone number" />
+                    <small class="form-error" *ngIf="(login.phone === '' || login.phone.length < 11) && (Phone.dirty || Phone.touched)">
+                      Enter a valid phone number!
+                    </small>
+                  </div>
+
+                  <div class="form-group">
+                    <input type="password" [(ngModel)]="login.hash" #hash="ngModel" [ngModelOptions]="{standalone: true}"
+                      class="form-control" placeholder="Your password" />
+                  </div>
+
+                  <div class="form-group">
+                    <button type="submit" [disabled]="validate(login) === false" class="btn btn-primary btn-block">Log
+                      In</button>
+                  </div>
+
+                  <div class="text-center mt-5 mb-3">
+                    <span>
+                      Forgot your password?
+                      <a [routerLink]="['/reset-password']">Reset It</a>
+                    </span>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+</div>

@@ -1,0 +1,70 @@
+<div class="content-wrap">
+    <app-main-nav [title]="title"></app-main-nav>
+    <div class="container">
+        <div *ngIf="!sorted" class="content-loader">
+            <span class="__1"></span>
+            <span class="__2"></span>
+            <span class="__3"></span>
+            <span class="__4"></span>
+        </div>
+        <div class="row" *ngIf="sorted">
+            <div class="card h-100 w-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="search-div">
+                            <i class="fa fa-search search-icon"></i>
+                            <input type="text" placeholder="search orders..." class="search-input">
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center ml-auto">
+                            <select class="form-control form-control-sm mr-2 text-capitalize" (change)="filterTable($event)">
+                                <option value="">Select one:</option>   
+                                <option *ngFor="let option of filterOptions" [value]="option">{{option}}</option>
+                            </select>
+                            <button class="btn filter-btn">
+                                Export
+                            </button>
+                        </div>
+                    </div>
+                    <table class="table table-hover mt-3">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Ref</th>
+                                <th scope="col">Buyer</th>
+                                <th scope="col">Location</th>
+                                <th scope="col">Date Created</th>
+                                <th scope="col">Amount</th>
+                                <th scope="col">Status</th>
+                                <th scope="col" class="text-right">View</th>
+                            </tr>
+                        </thead>
+                        <tbody
+                            *ngFor="let order of sorted | paginate: { itemsPerPage: itemsPerPage, currentPage: currentPage}; let i = index">
+                            <tr>
+                                <td scope="row">{{itemIndex(i+1)}}</td>
+                                <td>{{order.ref}}</td>
+                                <td>{{order.buyer.name | titlecase}}</td>
+                                <td>{{order.buyer.location.name | titlecase}}</td>
+                                <td>{{order.created | customDate}}</td>
+                                <td>{{order.amount | customCurrency }}</td>
+                                <td class="text-center">
+                                    <div [ngClass]="changeOrderStatusColor(order.tag)">
+                                        {{order.tag | titlecase}}
+                                    </div>
+                                </td>
+                                <td class="text-right">
+                                    <a href="javascript:void(0)" (click)="openOrderItems(order)">View</a></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div>
+                        <ng-container *ngIf="sorted">
+                            <pagination-controls *ngIf="sorted.length > 9" class="pagination" responsive="true"
+                                (pageChange)="currentPage = $event"></pagination-controls>
+                        </ng-container>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

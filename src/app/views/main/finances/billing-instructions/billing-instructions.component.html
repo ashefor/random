@@ -1,0 +1,548 @@
+<div class="content-wrap">
+  <!--Top dashboard nav from /components/main/main-nav-->
+  <!--the title prop is a string set in the .ts file of this component. An example is "Manufacturer". This will show on the top dashboard nav-->
+  <app-main-nav [title]="title" [mode]="modeWatch | async" [componentInstance]="this"></app-main-nav>
+
+  <!--Main content here-->
+  <div class="container">
+    <ng-container *ngIf="mode === modes[0]">
+      <div class="sub-header mt-3">
+        <div>
+          <button [routerLink]="['/main/finances/billing']"  class="btn btn-sm btn-light">
+            &larr; Back to Billings
+          </button>
+        </div>
+        <div>
+          Sort by
+          <select class="form-control form-control-sm">
+              <option value="all" selected>All</option>
+              <option></option>
+          </select>
+        </div>
+        <div>
+          <button [disabled]="loading || testMode || !executionOwners" (click)="spawnExecution(3)"  class="btn btn-sm btn-primary">Execute billing</button>
+        </div>
+        <div>
+          <button [disabled]="loading || testMode" class="btn btn-primary btn-sm float-right" (click)="spawnCreate(1)">
+            Add Billing Instruction
+          </button>
+        </div>
+      </div>
+    </ng-container>
+    <ng-container *ngIf="mode === modes[2]">
+      <div class="sub-header mt-3">
+        <div>
+          <button class="btn btn-danger btn-sm float-right" (click)="spawnDelete(currentInstruction._id)">
+            Delete Billing Instruction
+          </button>
+        </div>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="mode === modes[0]">
+      <div class="row mt-5">
+        <ng-container *ngIf="instructions; else nullInstructions">
+          <ng-container *ngIf="instructions.length > 0; else emptyInstructions">
+            <div class="col-12 col-md-12 row form justify-content-center my-5">
+              <div [ngClass]="{'col-md-12': !testMode, 'col-md-6': testMode}" class="col-12 col-md-12">
+                <div class="card panel-card">
+                  <div class="card-header">
+                    <h5 class="card-title">{{title}}</h5>
+                    <button [disabled]="testMode" (click)="executeTest()" class="btn btn-sm btn-primary">Execute sandbox test</button>
+                  </div>
+                  <div class="card-body">
+                    <div class="row">
+                      <div class="col-12">
+                        <div class="table-responsive">
+                          <table class="table table-hover">
+                            <thead>
+                              <tr>
+                                <th>S/N</th>
+                                <th>Index</th>
+                                <th>Description</th>
+                                <!-- <th>Code</th>
+                                <th colspan="2">Source</th>
+                                <th colspan="2">Destination</th> -->
+                                <th>Amount</th>
+                                <!-- <th>Status</th> -->
+                                <th></th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr *ngFor="let instruction of sorted | paginate: { id: 'instructions', itemsPerPage: 6, currentPage: p}; let i = index">
+                                <td>{{i + 1}}</td>
+                                <td>{{instruction.index}}</td>
+                                <td>{{instruction.description}}</td>
+                                <!-- <td>{{instruction.code}}</td>
+                                <td data-toggle="tooltip" data-placement="top" title="Source head (from_head)">{{instruction.from_head}}</td>
+                                <td data-toggle="tooltip" data-placement="top" title="Source sub-head (from_subhead)">{{instruction.from_subhead}}</td>
+                                <td data-toggle="tooltip" data-placement="top" title="Destination head (to_head)">{{instruction.to_head}}</td>
+                                <td data-toggle="tooltip" data-placement="top" title="Destination sub-head (to_subhead)">{{instruction.to_subhead}}</td> -->
+                                <ng-container *ngIf="instruction.is_percentage === true; else notPercent">
+                                  <td>{{instruction.amount}}%</td>
+                                </ng-container>
+                                <ng-template #notPercent>
+                                  <td>{{instruction.amount | customCurrency}}</td>
+                                </ng-template>
+                                <!-- <td style="text-transform: capitalize">{{instruction.status}}</td> -->
+                                <td>
+                                  <a href="javascript:void(0);" (click)="spawnEdit(instruction)">Edit instruction</a>
+                                </td>
+                              </tr>
+                              <tr>
+                                <td colspan="12">
+                                  <pagination-controls *ngIf="sorted.length > 6" id="instructions" class="pagination" responsive="true" (pageChange)="p = $event"></pagination-controls>
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div *ngIf="testMode" class="col-12 col-md-6">
+                <div class="card panel-card">
+                  <div class="card-header">
+                    <h5 class="card-title">Sandbox test result
+                      <button (click)="closeTest()" class="btn btn-sm btn-light pull-right">Close</button>
+                    </h5>
+                  </div>
+                  <div class="card-body">
+                    <div class="row">
+                      <div class="col-12 col-md-6">
+                        <p>
+                          <b>Test amount: </b>
+                          <span style="text-transform: uppercase">{{sandboxResult.testAmount | customCurrency}}</span>
+                        </p>
+                      </div>
+                      <div class="col-12 col-md-6">
+                        <p>
+                          <b>Minimum check: </b>
+                          <ng-container *ngIf="sandboxResult.minCheck; else minFailed">
+                            <span class="text-green" style="text-transform: uppercase"><b>Passed</b></span>
+                          </ng-container>
+                          <ng-template #minFailed>
+                            <span class="text-red" style="text-transform: uppercase"><b>Failed</b></span>
+                          </ng-template>
+                        </p>
+                      </div>
+                      <div class="col-12 col-md-6">
+                        <p>
+                          <b>Maximum check: </b>
+                          <ng-container *ngIf="sandboxResult.maxCheck; else maxFailed">
+                            <span class="text-green" style="text-transform: uppercase"><b>Passed</b></span>
+                          </ng-container>
+                          <ng-template #maxFailed>
+                            <span class="text-red" style="text-transform: uppercase"><b>Failed</b></span>
+                          </ng-template>
+                        </p>
+                      </div>
+                      <div class="col-12 col-md-6">
+                        <p>
+                          <b>Even check: </b>
+                          <ng-container *ngIf="sandboxResult.evenCheck; else evenFailed">
+                            <span class="text-green" style="text-transform: uppercase"><b>Passed</b></span>
+                          </ng-container>
+                          <ng-template #evenFailed>
+                            <span class="text-red" style="text-transform: uppercase"><b>Failed</b></span>
+                          </ng-template>
+                        </p>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-12">
+                        <div class="table-responsive">
+                          <table class="table table-hover">
+                            <thead>
+                              <tr>
+                                <th>S/N</th>
+                                <!-- <th>Owner</th>
+                                <th>Head</th>
+                                <th>Sub-head</th> -->
+                                <th>Value</th>
+                                <th>Description</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr *ngFor="let log of sandboxResult.logs | paginate: { id: 'sandbox', itemsPerPage: 6, currentPage: p1}; let i = index">
+                                <td>{{i + 1}}</td>
+                                <!-- <td>{{log.owner}}</td>
+                                <td>{{log.head}}</td>
+                                <td>{{log.subhead}}</td> -->
+                                <td [ngClass]="{'text-green': log.value >= 0, 'text-red': log.value < 0}">{{log.value | customCurrency}}</td>
+                                <td>{{log.description}}</td>
+                              </tr>
+                              <tr>
+                                <td colspan="12">
+                                  <pagination-controls *ngIf="sandboxResult.logs.length > 6" id="sandbox" class="pagination" responsive="true" (pageChange)="p1 = $event"></pagination-controls>
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </ng-container>
+          <ng-template #emptyInstructions>
+            <div class="col-12 col-md-12">
+              <div class="empty-state text-center">
+                <img src="../../../../assets/img/empty-data.svg">
+                <h5 class="mt-3">No instructions</h5>
+                <p>No instructions were found for this query. Please try another query or clear your filters.</p>
+              </div>
+            </div>
+          </ng-template>
+        </ng-container>
+        <ng-template #nullInstructions>
+          <div class="col-12 col-md-12">
+            <div class="content-loader">
+              <span class="__1"></span>
+              <span class="__2"></span>
+              <span class="__3"></span>
+              <span class="__4"></span>
+            </div>
+          </div>
+        </ng-template>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="mode === modes[1]">
+      <div class="row form justify-content-center my-5">
+        <div class="col-12 col-md-7">
+          <form class="card panel-card" [formGroup]="createForm">
+            <div class="card-header">
+              <h5 class="card-title">New Billing Instruction</h5>
+            </div>
+            <div class="card-body">
+              <div class="row mt-3"></div>
+              <div class="row">
+                <div class="col-12 col-md-6">
+                  <div class="form-group">
+                    <label for="index">Index</label>
+                    <input disabled name="index" class="form-control" id="index" aria-describedby="index" formControlName="index">
+                  </div>
+                </div>
+                <div class="col-12 col-md-6">
+                  <div class="form-group">
+                    <label for="status">Status</label>
+                    <select name="status" class="form-control" id="status" aria-describedby="status" formControlName="status">
+                      <option *ngFor="let status of statuses" [value]="[status.value]">{{status.name}}</option>
+                    </select>
+                    <small class="form-error" *ngIf="!createForm.controls.status.valid && !!createForm.controls.status.dirty">
+                      Select a status
+                    </small>
+                  </div>
+                </div>
+                <div class="col-12 col-md-6">
+                  <div class="form-group">
+                    <label for="desc">Description</label>
+                    <textarea name="desc" class="form-control" id="desc" aria-describedby="description" formControlName="description"></textarea>
+                    <small class="form-error" *ngIf="!createForm.controls.description.valid && !!createForm.controls.description.dirty">
+                      Enter instruction description
+                    </small>
+                  </div>
+                </div>
+                <div class="col-12 col-md-6">
+                  <div class="form-group">
+                    <label for="code">Code</label>
+                    <input name="code" class="form-control" id="code" aria-describedby="code" formControlName="code">
+                    <small class="form-error" *ngIf="!createForm.controls.code.valid && !!createForm.controls.code.dirty">
+                      Enter instruction code
+                    </small>
+                  </div>
+                </div>
+                <div class="col-12">
+                  <label>Source</label>
+                  <div class="row px-3">
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label for="from_head">Head (from_head)</label>
+                        <input name="from_head" class="form-control" id="from_head" aria-describedby="source head" formControlName="from_head">
+                        <small class="form-error" *ngIf="!createForm.controls.from_head.valid && !!createForm.controls.from_head.dirty">
+                          Enter source head
+                        </small>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label for="from_subhead">Sub-head (from_subhead)</label>
+                        <input name="from_subhead" class="form-control" id="from_subhead" aria-describedby="source sub-head" formControlName="from_subhead">
+                        <small class="form-error" *ngIf="!createForm.controls.from_subhead.valid && !!createForm.controls.from_subhead.dirty">
+                          Enter source sub-head
+                        </small>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-12">
+                  <label>Destination</label>
+                  <div class="row px-3">
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label for="to_head">Head (to_head)</label>
+                        <input name="to_head" class="form-control" id="to_head" aria-describedby="destination head" formControlName="to_head">
+                        <small class="form-error" *ngIf="!createForm.controls.to_head.valid && !!createForm.controls.to_head.dirty">
+                          Enter destination head
+                        </small>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label for="to_subhead">Sub-head (to_subhead)</label>
+                        <input name="to_subhead" class="form-control" id="to_subhead" aria-describedby="destination sub-head" formControlName="to_subhead">
+                        <small class="form-error" *ngIf="!createForm.controls.to_subhead.valid && !!createForm.controls.to_subhead.dirty">
+                          Enter destination sub-head
+                        </small>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-12 col-md-6">
+                  <div class="form-group">
+                    <label for="amount">Amount</label>
+                    <input type="number" name="amount" class="form-control" id="amount" aria-describedby="amount" formControlName="amount">
+                    <small class="form-error" *ngIf="!createForm.controls.amount.valid && !!createForm.controls.amount.dirty">
+                      Enter amount
+                    </small>
+                  </div>
+                </div>
+                <div class="col-12 col-md-6">
+                  <div class="form-group">
+                    <label for="type">Type</label>
+                    <select name="type" class="form-control" id="type" aria-describedby="Type" formControlName="is_percentage">
+                      <option value="false">Amount</option>
+                      <option value="true">Percentage</option>
+                    </select>
+                    <small class="form-error" *ngIf="!createForm.controls.is_percentage.valid && !!createForm.controls.is_percentage.dirty">
+                      Select a status
+                    </small>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card-footer">
+              <button [disabled]="!createForm.valid" (click)="createAction()" type="submit" class="btn btn-primary">
+                Create
+              </button>
+              <button (click)="closeForm(0)" class="btn btn-light float-right">
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="mode === modes[2]">
+      <div class="row form justify-content-center my-5">
+        <div class="col-12 col-md-7">
+          <form class="card panel-card" [formGroup]="editForm">
+            <div class="card-header">
+              <h5 class="card-title">Edit Billing Instruction</h5>
+            </div>
+            <div class="card-body">
+              <div class="row mt-3"></div>
+              <div class="row">
+                <div class="col-12 col-md-6">
+                  <div class="form-group">
+                    <label for="index">Index</label>
+                    <input disabled name="index" class="form-control" id="index" aria-describedby="index" formControlName="index">
+                  </div>
+                </div>
+                <div class="col-12 col-md-6">
+                  <div class="form-group">
+                    <label for="status">Status</label>
+                    <select name="status" class="form-control" id="status" aria-describedby="status" formControlName="status">
+                      <option *ngFor="let status of statuses" [value]="[status.value]">{{status.name}}</option>
+                    </select>
+                    <small class="form-error" *ngIf="!editForm.controls.status.valid && !!editForm.controls.status.dirty">
+                      Select a status
+                    </small>
+                  </div>
+                </div>
+                <div class="col-12 col-md-6">
+                  <div class="form-group">
+                    <label for="desc">Description</label>
+                    <textarea name="desc" class="form-control" id="desc" aria-describedby="description" formControlName="description"></textarea>
+                    <small class="form-error" *ngIf="!editForm.controls.description.valid && !!editForm.controls.description.dirty">
+                      Enter instruction description
+                    </small>
+                  </div>
+                </div>
+                <div class="col-12 col-md-6">
+                  <div class="form-group">
+                    <label for="code">Code</label>
+                    <input name="code" class="form-control" id="code" aria-describedby="code" formControlName="code">
+                    <small class="form-error" *ngIf="!editForm.controls.code.valid && !!editForm.controls.code.dirty">
+                      Enter instruction code
+                    </small>
+                  </div>
+                </div>
+                <div class="col-12">
+                  <label>Source</label>
+                  <div class="row px-3">
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label for="from_head">Head (from_head)</label>
+                        <input name="from_head" class="form-control" id="from_head" aria-describedby="source head" formControlName="from_head">
+                        <small class="form-error" *ngIf="!editForm.controls.from_head.valid && !!editForm.controls.from_head.dirty">
+                          Enter source head
+                        </small>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label for="from_subhead">Sub-head (from_subhead)</label>
+                        <input name="from_subhead" class="form-control" id="from_subhead" aria-describedby="source sub-head" formControlName="from_subhead">
+                        <small class="form-error" *ngIf="!editForm.controls.from_subhead.valid && !!editForm.controls.from_subhead.dirty">
+                          Enter source sub-head
+                        </small>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-12">
+                  <label>Destination</label>
+                  <div class="row px-3">
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label for="to_head">Head (to_head)</label>
+                        <input name="to_head" class="form-control" id="to_head" aria-describedby="destination head" formControlName="to_head">
+                        <small class="form-error" *ngIf="!editForm.controls.to_head.valid && !!editForm.controls.to_head.dirty">
+                          Enter destination head
+                        </small>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label for="to_subhead">Sub-head (to_subhead)</label>
+                        <input name="to_subhead" class="form-control" id="to_subhead" aria-describedby="destination sub-head" formControlName="to_subhead">
+                        <small class="form-error" *ngIf="!editForm.controls.to_subhead.valid && !!editForm.controls.to_subhead.dirty">
+                          Enter destination sub-head
+                        </small>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-12 col-md-6">
+                  <div class="form-group">
+                    <label for="amount">Amount</label>
+                    <input type="number" name="amount" class="form-control" id="amount" aria-describedby="amount" formControlName="amount">
+                    <small class="form-error" *ngIf="!editForm.controls.amount.valid && !!editForm.controls.amount.dirty">
+                      Enter amount
+                    </small>
+                  </div>
+                </div>
+                <div class="col-12 col-md-6">
+                  <div class="form-group">
+                    <label for="type">Type</label>
+                    <select name="type" class="form-control" id="type" aria-describedby="Type" formControlName="is_percentage">
+                      <option value="false">Amount</option>
+                      <option value="true">Percentage</option>
+                    </select>
+                    <small class="form-error" *ngIf="!editForm.controls.is_percentage.valid && !!editForm.controls.is_percentage.dirty">
+                      Select a status
+                    </small>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card-footer">
+              <button [disabled]="!editForm.valid" (click)="editAction()" type="submit" class="btn btn-primary">
+                Edit
+              </button>
+              <button (click)="closeForm(0)" class="btn btn-light float-right">
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="mode === modes[3]">
+      <div class="row form justify-content-center my-5">
+        <div class="col-12 col-md-7">
+          <form class="card panel-card" [formGroup]="executionForm">
+            <div class="card-header">
+              <h5 class="card-title">Execute Billing</h5>
+            </div>
+            <div class="card-body">
+              <div class="row mt-3"></div>
+              <div class="row">
+                <div class="col-12 col-md-6">
+                  <div class="form-group">
+                    <label for="from">From</label>
+                    <select name="from" class="form-control" id="from" aria-describedby="To owner" formControlName="from_owner">
+                      <option value="*">Any</option>
+                      <option *ngFor="let owner of executionOwners" [value]="owner._id">{{owner.name}}</option>
+                    </select>
+                    <small class="form-error" *ngIf="!executionForm.controls.from_owner.valid && !!executionForm.controls.from_owner.dirty">
+                      Fill in this field!
+                    </small>
+                  </div>
+                </div>
+                <div class="col-12 col-md-6">
+                  <div class="form-group">
+                    <label for="to">To</label>
+                    <select name="to" class="form-control" id="to" aria-describedby="To owner" formControlName="to_owner">
+                      <option value="*">Any</option>
+                      <option *ngFor="let owner of executionOwners" [value]="owner._id">{{owner.name}}</option>
+                    </select>
+                  </div>
+                  <small class="form-error" *ngIf="!executionForm.controls.to_owner.valid && !!executionForm.controls.to_owner.dirty">
+                    Fill in this field!
+                  </small>
+                </div>
+                <div class="col-12 col-md-6">
+                  <div class="form-group">
+                    <label for="amount">Amount</label>
+                    <input type="number" name="amount" class="form-control" id="amount" aria-describedby="amount" formControlName="amount">
+                  </div>
+                  <small class="form-error" *ngIf="!executionForm.controls.amount.valid && !!executionForm.controls.amount.dirty">
+                    Enter amount
+                  </small>
+                </div>
+                <div class="col-12 col-md-6">
+                  <div class="form-group">
+                    <label for="ref">Reference</label>
+                    <input name="ref" class="form-control" id="ref" aria-describedby="ref" formControlName="reference">
+                  </div>
+                  <small class="form-error" *ngIf="!executionForm.controls.reference.valid && !!executionForm.controls.reference.dirty">
+                    Enter reference
+                  </small>
+                </div>
+                <div class="col-12 col-md-6">
+                  <div class="form-group">
+                    <label for="type">Type</label>
+                    <select name="type" class="form-control" id="type" aria-describedby="type" formControlName="reversal">
+                      <option selected value="false">Transfer</option>
+                      <option value="true">Reversal</option>
+                    </select>
+                    <small class="form-error" *ngIf="!executionForm.controls.reversal.valid && !!executionForm.controls.reversal.dirty">
+                      Select a type
+                    </small>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card-footer">
+              <button [disabled]="!executionForm.valid" (click)="executionAction()" type="submit" class="btn btn-primary">
+                Execute
+              </button>
+              <button (click)="closeForm(0)" class="btn btn-light float-right">
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </ng-container>
+  </div>
+</div>

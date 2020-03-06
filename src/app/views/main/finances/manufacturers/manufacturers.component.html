@@ -1,0 +1,221 @@
+<div class="content-wrap">
+  <!--Top dashboard nav from /components/main/main-nav-->
+  <!--the title prop is a string set in the .ts file of this component. An example is "Manufacturer". This will show on the top dashboard nav-->
+  <app-main-nav [title]="title" [mode]="modeWatch | async" [componentInstance]="this"></app-main-nav>
+
+  <!--Main content here-->
+  <div class="container">
+    <ng-container *ngIf="mode === modes[0]">
+      <div class="sub-header mt-3">
+        <div>
+          <input type="text" class="form-control form-control-sm"(input)="search()" [(ngModel)]="query" [ngModelOptions]="{standalone: true}" placeholder="Search...">
+        </div>
+      </div>
+      <div class="row justify-content-center mt-5">
+        <div class="col-12 col-md-6">
+          <div *ngIf="manufacturers && manufacturers.length === 0" class="empty-state text-center">
+            <img src="../../../../assets/img/empty-data.svg">
+            <h5 class="mt-3">No manufacturers</h5>
+            <p>No manufacturers were found for this query. Please try another query or clear your filters.</p>
+          </div>
+          <div *ngIf="!manufacturers" class="content-loader">
+            <span class="__1"></span>
+            <span class="__2"></span>
+            <span class="__3"></span>
+            <span class="__4"></span>
+          </div>
+        </div>
+      </div>
+      <ng-container *ngIf="manufacturers && manufacturers.length !== 0">
+        <div *ngIf="query === ''" class="row mt-3">
+          <div class="col-sm-6 col-lg-4 my-2" *ngFor="let manufacturer of manufacturers | paginate: { id: 'mfts', itemsPerPage: 6, currentPage: p}">
+            <div class="card mftr-card">
+              <div class="card-body">
+                <div class="mftr-card-info">
+                  <div>
+                    <h5 class="mftr-name">{{manufacturer.name}}</h5>
+                  </div>
+                </div>
+              </div>
+              <div class="card-footer">
+                <button (click)="fetchLedgers(manufacturer)" class="btn btn-outline-primary btn-xs">View Ledgers</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div *ngIf="query !== ''" class="row mt-5">
+          <div class="col-sm-6 col-lg-4 my-2" *ngFor="let manufacturer of queryArray | paginate: { id: 'queries', itemsPerPage: 6, currentPage: p1}">
+            <div class="card mftr-card">
+              <div class="card-body">
+                <div class="mftr-card-info">
+                  <div>
+                    <h5 class="mftr-name">{{manufacturer.name}}</h5>
+                  </div>
+                </div>
+              </div>
+              <div class="card-footer">
+                <button (click)="fetchLedgers(manufacturer)" class="btn btn-outline-primary btn-xs">View Ledgers</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <ng-container>
+          <pagination-controls id="queries" *ngIf="query !== '' && queryArray.length > 6" class="pagination" responsive="true" (pageChange)="p1 = $event"></pagination-controls>
+          <pagination-controls id="mfts" *ngIf="query === '' && manufacturers.length > 6" class="pagination" responsive="true" (pageChange)="p = $event"></pagination-controls>
+        </ng-container>
+      </ng-container>
+    </ng-container>
+
+    <ng-container *ngIf="mode === modes[1]">
+      <div class="sub-header mt-3">
+        <div>
+          <button (click)="backToManufacturerList()" class="btn btn-sm btn-light">
+            &larr; Back to Manufacturer List
+          </button>
+        </div>
+        <div>
+          <button [disabled]="!manufacturerLedgers || loading" (click)="refreshLedgers()" class="btn btn-sm btn-primary">
+            Refresh Ledgers
+          </button>
+        </div>
+      </div>
+      <div class="row justify-content-center mt-5">
+        <div class="col-12 col-md-6">
+          <div *ngIf="manufacturerLedgers && manufacturerLedgers.length === 0" class="empty-state text-center">
+            <img src="../../../../assets/img/empty-data.svg">
+            <h5 class="mt-3">No ledgers</h5>
+            <p>No ledgers were found for {{currentManufacturer.name}}.</p>
+          </div>
+          <div *ngIf="!manufacturerLedgers" class="content-loader">
+            <span class="__1"></span>
+            <span class="__2"></span>
+            <span class="__3"></span>
+            <span class="__4"></span>
+          </div>
+        </div>
+      </div>
+      <ng-container *ngIf="manufacturerLedgers && manufacturerLedgers.length !== 0">
+        <div class="row mt-3">
+          <div class="col-sm-6 col-lg-4 my-2" *ngFor="let ledger of manufacturerLedgers | paginate: { id: 'ledgers', itemsPerPage: 6, currentPage: p2}">
+            <div class="card mftr-card">
+              <div class="card-body">
+                <div class="mftr-card-info">
+                  <div>
+                    <h5 [ngClass]="{'text-green': ledger.balance >= 0, 'text-red': ledger.balance < 0}" class="mftr-name">{{ledger.balance | customCurrency}}</h5>
+                    <label>
+                      <h6 style="text-transform: uppercase">{{ledger.title}}</h6>
+                    </label><br/>
+                    <label>
+                      <b style="text-transform: uppercase">Head: </b> {{ledger.head}}
+                    </label><br/>
+                    <label>
+                      <b style="text-transform: uppercase">Subhead: </b> {{ledger.subhead}}
+                    </label>
+                  </div>
+                </div>
+              </div>
+              <div class="card-footer">
+                <button (click)="fetchLogs(ledger)" class="btn btn-outline-primary btn-xs">View Logs</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <pagination-controls id="ledgers" *ngIf="manufacturerLedgers.length > 6" class="pagination" responsive="true" (pageChange)="p2 = $event"></pagination-controls>
+      </ng-container>
+    </ng-container>
+
+    <ng-container *ngIf="mode === modes[2]">
+      <div class="sub-header mt-3">
+        <div>
+          <button (click)="backToLedgerList()" class="btn btn-sm btn-light">
+            &larr; Back to Ledger List
+          </button>
+        </div>
+        <div>
+          <button [disabled]="!ledgerLogs || loading" (click)="refreshLogs()" class="btn btn-sm btn-primary">
+            Refresh Logs
+          </button>
+        </div>
+      </div>
+      <div class="row justify-content-center mt-5">
+        <div class="col-12 col-md-6">
+          <div *ngIf="ledgerLogs && ledgerLogs.length === 0" class="empty-state text-center">
+            <img src="../../../../assets/img/empty-data.svg">
+            <h5 class="mt-3">No logs</h5>
+            <p>No logs were found for this ledger.</p>
+          </div>
+          <div *ngIf="!ledgerLogs" class="content-loader">
+            <span class="__1"></span>
+            <span class="__2"></span>
+            <span class="__3"></span>
+            <span class="__4"></span>
+          </div>
+        </div>
+      </div>
+      <ng-container *ngIf="ledgerLogs && ledgerLogs.length !== 0">
+        <div class="row mt-3">
+          <div class="col-12 col-md-12 row form justify-content-center my-3">
+            <div class="col-12 col-md-8">
+              <div class="card panel-card">
+                <div class="card-header">
+                  <h5 class="card-title">Ledger Logs</h5>
+                </div>
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col-12 col-md-4">
+                      <p>
+                        <b>Head: </b>
+                        <span style="text-transform: uppercase">{{currentLedger.head}}</span>
+                      </p>
+                    </div>
+                    <div class="col-12 col-md-4">
+                      <p>
+                        <b>Sub-head: </b>
+                        <span style="text-transform: uppercase">{{currentLedger.subhead}}</span>
+                      </p>
+                    </div>
+                    <div class="col-12 col-md-4">
+                      <p>
+                        <b>Balance: </b>
+                        <span [ngClass]="{'text-green': currentLedger.balance >= 0, 'text-red': currentLedger.balance < 0}" style="text-transform: uppercase">{{currentLedger.balance | customCurrency}}</span>
+                      </p>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-12">
+                      <div class="table-responsive">
+                        <table class="table table-hover">
+                          <thead>
+                            <tr>
+                              <th>S/N</th>
+                              <th>Value</th>
+                              <th>Description</th>
+                              <th>Tag</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr *ngFor="let log of ledgerLogs | paginate: { id: 'logs', itemsPerPage: 6, currentPage: p3}; let i = index">
+                              <td>{{i + 1}}</td>
+                              <td [ngClass]="{'text-green': log.value >= 0, 'text-red': log.value < 0}">{{log.value | customCurrency}}</td>
+                              <td>{{log.description}}</td>
+                              <td>{{log.tag}}</td>
+                            </tr>
+                            <tr>
+                              <td colspan="12">
+                                <pagination-controls id="logs" *ngIf="ledgerLogs.length > 6" class="pagination" responsive="true" (pageChange)="p3 = $event"></pagination-controls>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+    </ng-container>
+  </div>
+</div>

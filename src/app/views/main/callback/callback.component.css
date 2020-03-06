@@ -1,0 +1,12 @@
+.body {
+  width: 100%;
+  height: 100vh;
+  background-color: var(--suplias-color);
+}
+
+.body img {
+  padding-top: 13em;
+  margin-left: auto;
+  margin-right: auto;
+  display: block;
+}

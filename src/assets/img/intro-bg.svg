@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1366px" height="768px" viewBox="0 0 1366 768" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 53 (72520) - https://sketchapp.com -->
+    <title>Group 17</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <linearGradient x1="108.844087%" y1="71.989079%" x2="40.9257609%" y2="42.3998162%" id="linearGradient-1">
+            <stop stop-color="#1946E1" offset="0%"></stop>
+            <stop stop-color="#3B54EC" offset="100%"></stop>
+        </linearGradient>
+        <polygon id="path-2" points="0 0 0 295.273229 507 316.295918 507 21.0226894"></polygon>
+        <filter x="-32.7%" y="-52.0%" width="165.5%" height="205.2%" filterUnits="objectBoundingBox" id="filter-3">
+            <feMorphology radius="5" operator="dilate" in="SourceAlpha" result="shadowSpreadOuter1"></feMorphology>
+            <feOffset dx="0" dy="2" in="shadowSpreadOuter1" result="shadowOffsetOuter1"></feOffset>
+            <feGaussianBlur stdDeviation="50" in="shadowOffsetOuter1" result="shadowBlurOuter1"></feGaussianBlur>
+            <feColorMatrix values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.3 0" type="matrix" in="shadowBlurOuter1"></feColorMatrix>
+        </filter>
+        <polygon id="path-4" points="187 208.5 187 503.773229 694 524.795918 694 229.522689"></polygon>
+        <filter x="-32.7%" y="-52.0%" width="165.5%" height="205.2%" filterUnits="objectBoundingBox" id="filter-5">
+            <feMorphology radius="5" operator="dilate" in="SourceAlpha" result="shadowSpreadOuter1"></feMorphology>
+            <feOffset dx="0" dy="2" in="shadowSpreadOuter1" result="shadowOffsetOuter1"></feOffset>
+            <feGaussianBlur stdDeviation="50" in="shadowOffsetOuter1" result="shadowBlurOuter1"></feGaussianBlur>
+            <feColorMatrix values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.3 0" type="matrix" in="shadowBlurOuter1"></feColorMatrix>
+        </filter>
+        <polygon id="path-6" points="644 25.5306122 644 320.803841 1151 341.826531 1151 46.5533017"></polygon>
+        <filter x="-32.7%" y="-52.0%" width="165.5%" height="205.2%" filterUnits="objectBoundingBox" id="filter-7">
+            <feMorphology radius="5" operator="dilate" in="SourceAlpha" result="shadowSpreadOuter1"></feMorphology>
+            <feOffset dx="0" dy="2" in="shadowSpreadOuter1" result="shadowOffsetOuter1"></feOffset>
+            <feGaussianBlur stdDeviation="50" in="shadowOffsetOuter1" result="shadowBlurOuter1"></feGaussianBlur>
+            <feColorMatrix values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.3 0" type="matrix" in="shadowBlurOuter1"></feColorMatrix>
+        </filter>
+        <polygon id="path-8" points="897 239.704082 897 534.977311 1404 556 1404 260.726771"></polygon>
+        <filter x="-32.7%" y="-52.0%" width="165.5%" height="205.2%" filterUnits="objectBoundingBox" id="filter-9">
+            <feMorphology radius="5" operator="dilate" in="SourceAlpha" result="shadowSpreadOuter1"></feMorphology>
+            <feOffset dx="0" dy="2" in="shadowSpreadOuter1" result="shadowOffsetOuter1"></feOffset>
+            <feGaussianBlur stdDeviation="50" in="shadowOffsetOuter1" result="shadowBlurOuter1"></feGaussianBlur>
+            <feColorMatrix values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.3 0" type="matrix" in="shadowBlurOuter1"></feColorMatrix>
+        </filter>
+    </defs>
+    <g id="Website" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Landing-5" transform="translate(0.000000, -558.000000)">
+            <g id="Group-17" transform="translate(0.000000, 659.000000)">
+                <polygon id="Rectangle" fill="url(#linearGradient-1)" points="0 1.93942085e-15 1366 57.4315068 1366 559 0 501.568493"></polygon>
+                <g id="Group-13" transform="translate(0.000000, 3.000000)" opacity="0.4">
+                    <g id="Path-7">
+                        <use fill="black" fill-opacity="1" filter="url(#filter-3)" xlink:href="#path-2"></use>
+                        <use fill="#2649DD" fill-rule="evenodd" xlink:href="#path-2"></use>
+                    </g>
+                    <g id="Path-7">
+                        <use fill="black" fill-opacity="1" filter="url(#filter-5)" xlink:href="#path-4"></use>
+                        <use fill="#2649DC" fill-rule="evenodd" xlink:href="#path-4"></use>
+                    </g>
+                    <g id="Path-7-Copy">
+                        <use fill="black" fill-opacity="1" filter="url(#filter-7)" xlink:href="#path-6"></use>
+                        <use fill="#274AE1" fill-rule="evenodd" xlink:href="#path-6"></use>
+                    </g>
+                    <g id="Path-7-Copy-2">
+                        <use fill="black" fill-opacity="1" filter="url(#filter-9)" xlink:href="#path-8"></use>
+                        <use fill="#2548DC" fill-rule="evenodd" xlink:href="#path-8"></use>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

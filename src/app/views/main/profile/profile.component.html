@@ -1,0 +1,96 @@
+<div class="content-wrap">
+  <!--Top dashboard nav from /components/main/main-nav-->
+  <!--the title prop is a string set in the .ts file of this component. An example is "Manufacturer". This will show on the top dashboard nav-->
+  <app-main-nav [title]="title"></app-main-nav>
+
+  <!--Main content here-->
+  <div class="container">
+    <div class="row form justify-content-center my-5">
+      <div class="col-12 col-md-7 mt-3">
+        <div class="card h-100">
+          <div class="card-header">
+            <h5 class="card-title">User Information</h5>
+          </div>
+          <div class="card-body">
+            <div class="row my-3">
+                <img class="avatar" src="../../../../assets/img/avatar-2.png" alt="avatar" style="margin: auto">
+            </div>
+            <div class="row">
+              <div class="col-12 text-center"><h5 class="item-name">{{user['name']}}</h5></div>
+              <div class="col-12 text-center" *ngIf="user['group'] === 'sales'">
+                <div class="item-description">{{user['manufacturer']['name']}}</div>
+                <div class="item-description">{{user['seller']['name']}}</div>
+              </div>
+              <div class="col-12 text-center" *ngIf="user['group'] === 'manufacturer_staff'">
+                <div class="item-description">{{user['manufacturer']['name']}}</div>
+              </div>
+              <div class="col-12 text-center">
+                <span class="item-description" *ngIf="user['group'] === 'admin'">Administrator</span>
+                <span class="item-description" *ngIf="user['group'] === 'manager'">Account Manager</span>
+                <span class="item-description" *ngIf="user['group'] === 'sales'">Sales Manager</span>
+                <span class="item-description" *ngIf="user['group'] === 'manufacturer_staff'">Staff</span>
+              </div>
+              <div class="col-12 text-center"><span class="item-description">Joined {{convertDate(user['created'])}}</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-md-5 mt-3">
+        <form class="card h-100" [formGroup]="form">
+          <div class="card-header">
+            <h5 class="card-title">Change Password</h5>
+          </div>
+          <div class="card-body">
+            <div class="row mt-3"></div>
+            <div class="row">
+              <div class="col-12">
+                <div class="form-group">
+                  <label for="old">Old password</label>
+                  <input type="password" name="old" class="form-control" id="old" aria-describedby="old password"
+                  [(ngModel)]="change.old" formControlName="oldPassword">
+                  <small class="form-error" *ngIf="!form.controls.oldPassword.valid && !!form.controls.oldPassword.dirty">
+                    Enter your old password
+                  </small>
+                </div>
+              </div>
+              <div class="col-12">
+                <div class="form-group">
+                  <label for="new">New password</label>
+                  <input type="password" name="new" class="form-control" id="new" aria-describedby="new password"
+                  [(ngModel)]="change.new" formControlName="newPassword">
+                  <small class="form-error" *ngIf="!form.controls.newPassword.valid && !!form.controls.newPassword.dirty">
+                    Enter a new password not less than 6 characters
+                  </small>
+                  <small class="form-error" *ngIf="!!form.controls.newPassword.valid && checkOldNew(change) === true">
+                    New password cannot be the same as the old password.
+                  </small>
+                </div>
+              </div>
+              <div class="col-12">
+                <div class="form-group">
+                  <label for="confirm">Confirm password</label>
+                  <input type="password" name="confirm" class="form-control" id="confirm" aria-describedby="confirm password"
+                  [(ngModel)]="change.confirm" formControlName="confirmPassword">
+                  <small class="form-error" *ngIf="!form.controls.confirmPassword.valid && !!form.controls.confirmPassword.dirty">
+                    Enter your new password again
+                  </small>
+                  <small class="form-error" *ngIf="!!form.controls.confirmPassword.valid && this.confirmPassword(change) === false">
+                    Passwords don't match
+                  </small>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card-footer">
+            <button id="submit" (click)="changePassword(change)" [disabled]="!form.valid || validate(change) === false" type="submit" class="btn btn-primary">
+              Submit
+            </button>
+            <button (click)="resetForm()" class="btn btn-light float-right">
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

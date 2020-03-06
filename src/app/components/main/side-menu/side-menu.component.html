@@ -1,0 +1,473 @@
+<div class="sidemenu" [ngClass]="{'sidemenu-dark': (darkMode === 'true')}">
+  <div class="sidemenu-content">
+    <div class="sidemenu-brand d-flex justify-content-between align-items-center">
+      <img
+        class="light-mode-item"
+        src="../../../../assets/img/suplias-logo.svg"
+      />
+      <img
+        class="dark-mode-item"
+        src="../../../../assets/img/suplias-logo-white.svg"
+      />
+
+      <!-- Light/Dark Mode Toggle Switch -->
+      <a href="#" class="sidemenu-mode" (click)="toggleMode($event)">
+        <svg
+          class="dark-mode light-mode-item"
+          width="16"
+          height="16"
+          viewBox="0 0 16 16"
+          fill="#ccc"
+        >
+          <path
+            d="M16 8.7C15.6 12.9 12 16.1 7.8 16 3.6 15.8 0.2 12.4 0 8.2 -0.1 4 3.1 0.4 7.3 0 5.5 2.5 5.7 5.9 7.9 8.1 10.1 10.3 13.5 10.5 16 8.7Z"
+          />
+        </svg>
+        <svg
+          class="light-mode dark-mode-item"
+          width="20"
+          height="20"
+          viewBox="0 0 20 20"
+          fill="#ccc"
+        >
+          <path
+            d="M10 14.1C7.7 14.1 5.9 12.3 5.9 10 5.9 7.7 7.7 5.9 10 5.9 12.3 5.9 14.1 7.7 14.1 10 14.1 12.3 12.3 14.1 10 14.1ZM9.3 0.3L10.8 0.3 10.8 3.4 9.3 3.4 9.3 0.3ZM9.3 16.6L10.8 16.6 10.8 19.8 9.3 19.8 9.3 16.6ZM2.6 3.6L3.6 2.6 5.9 4.8 4.8 5.9 2.6 3.6ZM14.1 15.2L15.2 14.1 17.4 16.4 16.4 17.4 14.1 15.2ZM0.3 10.8L0.3 9.3 3.4 9.3 3.4 10.8 0.3 10.8ZM16.6 10.8L16.6 9.3 19.8 9.3 19.8 10.8 16.6 10.8ZM3.6 17.4L2.6 16.4 4.8 14.1 5.9 15.2 3.6 17.4ZM15.2 5.9L14.1 4.8 16.4 2.6 17.4 3.6 15.2 5.9Z"
+          />
+        </svg>
+      </a>
+    </div>
+    
+    <div *ngIf="user_group === 'manufacturer_staff'" class="sidemenu-context">
+      <img class="avatar avatar-sm" src="../../../../assets/img/avatar-2.png">
+      <div>
+        <span class="font-weight-medium">{{ manufacturer.name }}</span>
+        <small class="text-muted" style="display:block;margin-top:-1px">{{ user.name }}</small>
+      </div>
+    </div>
+  
+    <div *ngIf="user_group !== 'manufacturer_staff'" class="sidemenu-context">
+      <img class="avatar avatar-sm" src="../../../../assets/img/avatar-2.png">
+      <div>
+        <span class="font-weight-medium">Suplias</span>
+        <small class="text-muted" style="display:block;margin-top:-1px">{{ user.name }}</small>
+      </div>
+    </div>
+
+    <ul *ngIf="user_group === 'admin'" class="sidemenu-menu">
+      <li
+        id="nav-dashboard"
+        class="sidemenu-item"
+        [routerLink]="['/main/dashboard']"
+        routerLinkActive="active"
+      >
+        <a> <i class="fa fa-dashboard"></i> Dashboard </a>
+      </li>
+      <li class="sidemenu-divider">Insights</li>
+      <li
+        id="nav-dashboard"
+        class="sidemenu-item"
+        [routerLink]="['/main/insights/buyer']"
+        routerLinkActive="active"
+      >
+        <a> <i class="fa fa-user"></i>Buyer</a>
+      </li>
+      <li
+        id="nav-dashboard"
+        class="sidemenu-item"
+        [routerLink]="['/main/insights/manufacturer']"
+        routerLinkActive="active"
+      >
+        <a> <i class="fa fa-briefcase"></i>Manufacturer</a>
+      </li>
+      <li
+        id="nav-dashboard"
+        class="sidemenu-item"
+        [routerLink]="['/main/insights/seller']"
+        routerLinkActive="active"
+      >
+        <a> <i class="fa fa-user"></i>Seller</a>
+      </li>
+
+      <li class="sidemenu-divider">People</li>
+      <li
+        id="nav-manufacturers"
+        class="sidemenu-item"
+        [routerLink]="['/main/account-managers']"
+        routerLinkActive="active"
+      >
+        <a> <i class="fa fa-users"></i> Account Managers </a>
+      </li>
+      <li
+        id="nav-manufacturers"
+        class="sidemenu-item"
+        [routerLink]="['/main/manufacturer-staff']"
+        routerLinkActive="active"
+      >
+        <a> <i class="fa fa-users"></i> Manufacturer Staff </a>
+      </li>
+      <li
+        id="nav-manufacturers"
+        class="sidemenu-item"
+        [routerLink]="['/main/sales-managers']"
+        routerLinkActive="active"
+      >
+        <a> <i class="fa fa-users"></i> Sales Managers </a>
+      </li>
+      <li
+        id="nav-manufacturers"
+        class="sidemenu-item"
+        [routerLink]="['/main/sales-reps']"
+        routerLinkActive="active"
+      >
+        <a> <i class="fa fa-users"></i> Sales Reps </a>
+      </li>
+      <li
+        id="nav-manufacturers"
+        class="sidemenu-item"
+        [routerLink]="['/main/buyers']"
+        routerLinkActive="active"
+      >
+        <a> <i class="fa fa-users"></i> Buyers </a>
+      </li>
+
+      <li class="sidemenu-divider">Administration</li>
+      <li
+        id="nav-manufacturers"
+        class="sidemenu-item"
+        [routerLink]="['/main/manufacturers']"
+        routerLinkActive="active"
+      >
+        <a> <i class="fa fa-briefcase"></i> Manufacturers </a>
+      </li>
+      <li
+        id="nav-manufacturers"
+        class="sidemenu-item"
+        [routerLink]="['/main/distributors']"
+        routerLinkActive="active"
+      >
+        <a> <i class="fa fa-sitemap"></i> Distributors </a>
+      </li>
+      <li
+        id="nav-manufacturers"
+        class="sidemenu-item"
+        [routerLink]="['/main/locations']"
+        routerLinkActive="active"
+      >
+        <a> <i class="fa fa-map"></i> Locations </a>
+      </li>
+      <li
+        id="nav-manufacturers"
+        class="sidemenu-item"
+        [routerLink]="['/main/channels']"
+        routerLinkActive="active"
+      >
+        <a> <i class="fa fa-bandcamp"></i> Channels </a>
+      </li>
+
+      <li class="sidemenu-divider">Operations</li>
+      <li
+      id="nav-manufacturers"
+      class="sidemenu-item"
+      [routerLink]="['/main/tickets']"
+      routerLinkActive="active"
+    >
+      <a> Tickets </a>
+    </li>
+    <li
+      id="nav-manufacturers"
+      class="sidemenu-item"
+      [routerLink]="['/main/orders']"
+      routerLinkActive="active"
+    >
+      <a> Orders </a>
+    </li>
+    <li
+      id="nav-manufacturers"
+      class="sidemenu-item"
+      [routerLink]="['/main/shopping-lists']"
+      routerLinkActive="active"
+    >
+      <a> Shopping Lists </a>
+    </li>
+      <li
+        id="nav-manufacturers"
+        class="sidemenu-item"
+        [routerLink]="['/main/features-flags']"
+        routerLinkActive="active"
+      >
+        <a> <i class="fa fa-flag"></i> Features Flags </a>
+      </li>
+      <li
+        id="nav-manufacturers"
+        class="sidemenu-item"
+        [routerLink]="['/main/information']"
+        routerLinkActive="active"
+      >
+        <a> <i class="fa fa-info-circle"></i> Information </a>
+      </li>
+      <li
+        id="nav-manufacturers"
+        class="sidemenu-item"
+        [routerLink]="['/main/notifications']"
+        routerLinkActive="active"
+      >
+        <a> <i class="fas fa-bell"></i> Notifications </a>
+      </li>
+
+      <li class="sidemenu-divider">Merchandise</li>
+      <li
+        id="nav-manufacturers"
+        class="sidemenu-item"
+        [routerLink]="['/main/brands']"
+        routerLinkActive="active"
+      >
+        <a> <i class="fa fa-bandcamp"></i> Brands </a>
+      </li>
+
+      <li class="sidemenu-divider">Finances</li>
+      <li
+        [routerLink]="['/main/finances/billing']"
+        routerLinkActive="active"
+        id="nav-finances"
+        class="sidemenu-item"
+      >
+        <a> <i class="fa fa-bandcamp"></i> Billing </a>
+      </li>
+      <li
+        [routerLink]="['/main/finances/suplias']"
+        routerLinkActive="active"
+        id="nav-finances"
+        class="sidemenu-item"
+      >
+        <a> <i class="fa fa-bandcamp"></i> Suplias </a>
+      </li>
+      <li
+        [routerLink]="['/main/finances/third-party']"
+        routerLinkActive="active"
+        id="nav-finances"
+        class="sidemenu-item"
+      >
+        <a> <i class="fa fa-bandcamp"></i> Third parties </a>
+      </li>
+      <li
+        [routerLink]="['/main/finances/manufacturers']"
+        routerLinkActive="active"
+        id="nav-finances"
+        class="sidemenu-item"
+      >
+        <a> <i class="fa fa-briefcase"></i> Manufacturers </a>
+      </li>
+      <li
+        [routerLink]="['/main/finances/sellers']"
+        routerLinkActive="active"
+        id="nav-finances"
+        class="sidemenu-item"
+      >
+        <a> <i class="fa fa-users"></i> Distributors </a>
+      </li>
+      <li
+        [routerLink]="['/main/finances/buyers']"
+        routerLinkActive="active"
+        id="nav-finances"
+        class="sidemenu-item"
+      >
+        <a> <i class="fa fa-users"></i> Buyers </a>
+      </li>
+    </ul>
+
+    <ul *ngIf="user_group === 'manager'" class="sidemenu-menu">
+      <li
+        id="nav-dashboard"
+        class="sidemenu-item"
+        [routerLink]="['/main/dashboard']"
+        routerLinkActive="active"
+      >
+        <a> <i class="fa fa-dashboard"></i> Dashboard </a>
+      </li>
+
+      <li class="sidemenu-divider">Administration</li>
+      <li
+        id="nav-manufacturers"
+        class="sidemenu-item"
+        [routerLink]="['/main/distributors']"
+        routerLinkActive="active"
+      >
+        <a> <i class="fa fa-sitemap"></i> Distributors </a>
+      </li>
+
+      <li class="sidemenu-divider">People</li>
+      <li
+        id="nav-manufacturers"
+        class="sidemenu-item"
+        [routerLink]="['/main/sales-managers']"
+        routerLinkActive="active"
+      >
+        <a> <i class="fa fa-people"></i> Sales Managers </a>
+      </li>
+      <li
+        id="nav-manufacturers"
+        class="sidemenu-item"
+        [routerLink]="['/main/sales-reps']"
+        routerLinkActive="active"
+      >
+        <a> <i class="fa fa-people"></i> Sales Reps </a>
+      </li>
+      <li
+        id="nav-manufacturers"
+        class="sidemenu-item"
+        [routerLink]="['/main/buyers']"
+        routerLinkActive="active"
+      >
+        <a> <i class="fa fa-users"></i> Buyers </a>
+      </li>
+      <li class="sidemenu-divider">Operations</li>
+      <li
+        id="nav-manufacturers"
+        class="sidemenu-item"
+        [routerLink]="['/main/tickets']"
+        routerLinkActive="active"
+      >
+        <a> Tickets </a>
+      </li>
+      <li
+        id="nav-manufacturers"
+        class="sidemenu-item"
+        [routerLink]="['/main/orders']"
+        routerLinkActive="active"
+      >
+        <a> Orders </a>
+      </li>
+      <li
+        id="nav-manufacturers"
+        class="sidemenu-item"
+        [routerLink]="['/main/shopping-lists']"
+        routerLinkActive="active"
+      >
+        <a> Shopping Lists </a>
+      </li>
+      <!--li class="sidemenu-divider">Statistics</li>
+	      	<li id="nav-manufacturers" class="sidemenu-item" [routerLink] ="['/stats/distributors']" routerLinkActive="active">
+		        <a>
+		          <i class="fa fa-sitemap"></i> Distributors
+		        </a>
+	      	</li-->
+    </ul>
+
+    <ul *ngIf="user_group === 'manufacturer_staff'" class="sidemenu-menu">
+      <li
+        id="nav-dashboard"
+        class="sidemenu-item"
+        [routerLink]="['/main/dashboard']"
+        routerLinkActive="active"
+      >
+        <a> <i class="fa fa-dashboard"></i> Dashboard </a>
+      </li>
+
+      <li class="sidemenu-divider">Administration</li>
+      <li
+        id="nav-manufacturers"
+        class="sidemenu-item"
+        [routerLink]="['/main/areas']"
+        routerLinkActive="active"
+      >
+        <a> <i class="fa fa-map"></i> Areas </a>
+      </li>
+      <li
+        id="nav-manufacturers"
+        class="sidemenu-item"
+        [routerLink]="['/main/distributors']"
+        routerLinkActive="active"
+      >
+        <a> <i class="fa fa-sitemap"></i> Distributors </a>
+      </li>
+
+      <li class="sidemenu-divider">Merchandise</li>
+      <li
+        id="nav-manufacturers"
+        class="sidemenu-item"
+        [routerLink]="['/main/brands']"
+        routerLinkActive="active"
+      >
+        <a> <i class="fa fa-bandcamp"></i> Brands </a>
+      </li>
+
+      <li class="sidemenu-divider">Operations</li>
+      <li
+        id="nav-manufacturers"
+        class="sidemenu-item"
+        [routerLink]="['/main/information']"
+        routerLinkActive="active"
+      >
+        <a> <i class="fa fa-info-circle"></i> Information </a>
+      </li>
+      <li
+        id="nav-manufacturers"
+        class="sidemenu-item"
+        [routerLink]="['/main/promotions']"
+        routerLinkActive="active"
+      >
+        <a> <i class="fa fa-tags"></i> Promotions </a>
+      </li>
+      <li
+        id="nav-manufacturers"
+        class="sidemenu-item"
+        [routerLink]="['/main/surveys']"
+        routerLinkActive="active"
+      >
+        <a> <i class="fa fa-file"></i> Surveys </a>
+      </li>
+      <li
+        id="nav-manufacturers"
+        class="sidemenu-item"
+        [routerLink]="['/main/tasks']"
+        routerLinkActive="active"
+      >
+        <a> <i class="fa fa-camera"></i> Tasks </a>
+      </li>
+      <!--li class="sidemenu-divider">Statistics</li>
+	      	<li id="nav-manufacturers" class="sidemenu-item" [routerLink] ="['/stats/orders']" routerLinkActive="active">
+		        <a>
+		          <i class="icon-manufacturers"></i> Orders
+		        </a>
+	      	</li-->
+    </ul>
+
+    <ul *ngIf="user_group === 'sales'" class="sidemenu-menu">
+      <li
+        id="nav-dashboard"
+        class="sidemenu-item"
+        [routerLink]="['/main/dashboard']"
+        routerLinkActive="active"
+      >
+        <a> <i class="fa fa-dashboard"></i> Dashboard </a>
+      </li>
+
+      <li class="sidemenu-divider">Administration</li>
+      <li
+        id="nav-manufacturers"
+        class="sidemenu-item"
+        [routerLink]="['/main/referral-codes']"
+        routerLinkActive="active"
+      >
+        <a> <i class="fa fa-asterisk"></i> Referral Codes </a>
+      </li>
+
+      <li class="sidemenu-divider">People</li>
+      <li
+        id="nav-manufacturers"
+        class="sidemenu-item"
+        [routerLink]="['/main/sales-reps']"
+        routerLinkActive="active"
+      >
+        <a> <i class="fa fa-users"></i> Sales Reps </a>
+      </li>
+      <!--li class="sidemenu-divider">Statistics</li>
+      		<li id="nav-manufacturers" class="sidemenu-item" [routerLink] ="['/stats/orders/' + seller.name + '/' + seller._id]" routerLinkActive="active">
+		        <a>
+		          <i class="icon-manufacturers"></i> Orders
+		        </a>
+      		</li-->
+    </ul>
+  </div>
+
+</div>

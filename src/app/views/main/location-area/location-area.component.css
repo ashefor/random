@@ -1,0 +1,17 @@
+table, thead, tr, td, th, tbody {
+  border: none !important;
+}
+
+thead{
+  border-bottom: #eaeaea 1px solid !important;
+}
+
+tbody > tr {
+  border-bottom: #eaeaea 1px solid !important;
+}
+
+input[type="checkbox"] {
+  visibility: visible;
+  height: 13px;
+  width: 13px;
+}

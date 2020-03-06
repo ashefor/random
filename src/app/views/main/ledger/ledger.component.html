@@ -1,0 +1,201 @@
+<div class="content-wrap">
+  <!--Top dashboard nav from /components/main/main-nav-->
+  <!--the title prop is a string set in the .ts file of this component. An example is "Manufacturer". This will show on the top dashboard nav-->
+  <app-main-nav [title]="title" [mode]="modeWatch | async" [componentInstance]="this"></app-main-nav>
+
+  <!--Main content here-->
+  <div class="container">
+    <div class="row form justify-content-center my-5">
+      <div class="col-12">
+        <div *ngIf="summary && summary.balance !== -1" class="row">
+          <div class="col-12 col-md-4">
+            <div class="card metric-card">
+              <div class="card-body">
+                <span class="metric-name">
+                  Amount Incured
+                </span>
+                <span class="metric-count">
+                    {{ summary.incurred | customCurrency}}
+                </span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-12 col-md-4">
+            <div class="card metric-card">
+              <div class="card-body">
+                <span class="metric-name">
+                  Amount Paid
+                </span>
+                <span class="metric-count text-green">
+                    {{ summary.paid | customCurrency}}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-12 col-md-4">
+            <div class="card metric-card">
+              <div class="card-body">
+                <span class="metric-name">
+                  Amount Outstanding
+                </span>
+                <span *ngIf="summary.balance >= 0" class="metric-count text-red">
+                  {{ 0 | customCurrency}}
+                </span>
+                <span *ngIf="summary.balance < 0" class="metric-count text-red">
+                  {{ summary.balance | customCurrency}}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="summary && summary.balance === -1" class="empty-state text-center">
+          <img src="../../../../assets/img/empty-data.svg">
+          <h5 class="mt-3">No balance summary</h5>
+          <p>Unable for fetch balance summary</p>
+        </div>
+        <div *ngIf="!summary" class="content-loader">
+          <span class="__1"></span>
+          <span class="__2"></span>
+          <span class="__3"></span>
+          <span class="__4"></span>
+        </div>
+      </div>
+      
+      <div *ngIf="summary && summary.logs.length !== 0" hidden id="print" class="col-12">
+        <div class="card panel-card">
+          <div class="card-header">
+            <h5 class="card-title">Cash Summary</h5>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-12">
+                <div class="table-responsive">
+                  <table id="printable" class="table table-condensed">
+                    <tbody>
+                      <tr *ngFor="let log of summary.logs">
+                        <td>{{log.created | customDate}}</td>
+                        <td>{{log.description}}</td>
+                        <td><span *ngIf="log.value >= 0" class="mr-5">Cr</span><span *ngIf="log.value < 0" class="mr-5">Dr</span>
+                          {{log.value | customCurrency}}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="mode === modes[0]" class="col-12 mt-3">
+        <div *ngIf="summary && summary.logs.length === 0" class="empty-state text-center">
+          <img src="../../../../assets/img/empty-data.svg">
+          <h5 class="mt-3">No cash summary</h5>
+          <p>No cash summary was found</p>
+        </div>
+        <div *ngIf="!summary" class="content-loader">
+          <span class="__1"></span>
+          <span class="__2"></span>
+          <span class="__3"></span>
+          <span class="__4"></span>
+        </div>
+
+        <div *ngIf="summary && summary.logs.length !== 0" class="card panel-card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="card-title">Cash Summary
+            </h5>
+            <div class="btn-multiple">
+                <button class="btn btn-primary-light btn-sm" (click)="print()" href="javascript:void(0);">Print</button>
+                <button class="btn btn-primary-light btn-sm" href="javascript:void(0);">Export</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-12">
+                <div class="table-responsive">
+                  <table class="table table-striped table-borderless">
+                    <thead>
+                      <tr>
+                        <th>Date</th>
+                        <th>Description</th>
+                        <th>Amount</th>
+                        <th>Details</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let log of summary.logs | paginate: { itemsPerPage: 10, currentPage: p}">
+                        <td>{{log.created | customDate}}</td>
+                        <td>{{log.description}}</td>
+                        <td [class.text-red]="log.value < 0" [class.text-green]="log.value >= 0">{{log.value | customCurrency}}</td>
+                        <td *ngIf="log.tag !== '-'">
+                          <a class="font-weight-bold" (click)="viewDetail(log.tag)" href="javascript:void(0);">
+                            Details
+                          </a>
+                        </td>
+                        <td *ngIf="log.tag === '-'">
+                          -
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <div>
+                    <pagination-controls *ngIf="summary.logs.length > 10" class="pagination" responsive="true" (pageChange)="p = $event"></pagination-controls>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div *ngIf="mode === modes[1]" class="col-12 col-md-8 mt-3">
+        <div *ngIf="!details" class="content-loader">
+          <span class="__1"></span>
+          <span class="__2"></span>
+          <span class="__3"></span>
+          <span class="__4"></span>
+        </div>
+        <div *ngIf="details" class="card panel-card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="card-title">Order #1111111</h5>
+            <a class="btn btn-sm btn-primary-light" (click)="toList()" href="javascript:void(0);">&larr; Back to Summary</a>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-12">
+                <div class="table-responsive" style="overflow: hidden">
+                  <table class="table table-striped table-borderless">
+                    <thead>
+                      <tr>
+                        <th>Product</th>
+                        <th>Quantity</th>
+                        <th>Cost</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let item of details | paginate: { itemsPerPage: 10, currentPage: p}">
+                        <td>{{item.product}}</td>
+                        <td>{{item.quantity}} units</td>
+                        <td>{{item.amount | customCurrency}}</td>
+                      </tr>
+                      <tr>
+                        <td colspan="2">Total</td>
+                        <td colspan="2">₦99,533.76</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <div>
+                    <pagination-controls *ngIf="details.length > 10" class="pagination" responsive="true" (pageChange)="p = $event"></pagination-controls>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

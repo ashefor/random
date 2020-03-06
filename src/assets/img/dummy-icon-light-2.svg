@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="59px" height="61px" viewBox="0 0 59 61" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 53 (72520) - https://sketchapp.com -->
+    <desc>Created with Sketch.</desc>
+    <g id="Symbols" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Cards-/-Feature-/-Dark" transform="translate(-229.000000, -13.000000)" fill-rule="nonzero">
+            <g id="Feature" transform="translate(0.000000, 13.000000)">
+                <g id="Icon-Copy" transform="translate(229.000000, 0.000000)">
+                    <circle id="Oval" fill-opacity="0.3" fill="#23CBFD" cx="27" cy="27" r="27"></circle>
+                    <circle id="Oval-Copy" fill-opacity="0.3" fill="#23CBFD" cx="32" cy="34" r="27"></circle>
+                    <path d="M22.876,40 L22.876,39.376 L29.896,31.966 C31.7853428,29.9726567 32.73,28.213341 32.73,26.688 C32.73,25.8039956 32.4873358,25.1106692 32.002,24.608 C31.5166642,24.1053308 30.8320044,23.854 29.948,23.854 C28.0239904,23.854 26.9146681,25.0846544 26.62,27.546 L23.448,27.546 C23.5693339,25.5179899 24.2106609,23.9450056 25.372,22.827 C26.5333391,21.7089944 28.0933235,21.15 30.052,21.15 C31.9586762,21.15 33.4579945,21.6483283 34.55,22.645 C35.6420055,23.6416716 36.188,24.9719917 36.188,26.636 C36.188,28.7333438 34.9746788,30.9519883 32.548,33.292 L28.414,37.322 L36.318,37.322 L36.318,40 L22.876,40 Z" id="2" fill="#FFFFFF"></path>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

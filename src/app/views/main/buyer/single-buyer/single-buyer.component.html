@@ -1,0 +1,310 @@
+<div class="content-wrap">
+    <app-main-nav [title]="title"></app-main-nav>
+
+    <!--Main content here-->
+    <div class="container">
+        <div *ngIf="!buyer" class="content-loader">
+            <span class="__1"></span>
+            <span class="__2"></span>
+            <span class="__3"></span>
+            <span class="__4"></span>
+        </div>
+        <div class="row" *ngIf="buyer">
+            <div class="col-lg-6">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h6 class="mb-5">Details</h6>
+                        <div class="row no-gutters mt-3 mb-3 thinborder">
+                            <div class="col-lg-4"><span>
+                                    Store Name
+                                </span></div>
+                            <div class="col-lg-8"><span>
+                                    <strong>
+                                        {{buyer.name}}
+                                    </strong>
+                                </span></div>
+                        </div>
+                        <div class="row no-gutters mt-3 mb-3 thinborder">
+                            <div class="col-lg-4"><span>
+                                    Store Owner
+                                </span></div>
+                            <div class="col-lg-8"><span>
+                                    <strong>
+                                        {{buyer.person}}
+                                    </strong>
+                                </span></div>
+                        </div>
+
+                        <div class="row no-gutters mt-3 mb-3 thinborder">
+                            <div class="col-lg-4"><span>
+                                    Store Type
+                                </span></div>
+                            <div class="col-lg-8"><span>
+                                    <strong>{{buyer.store_type.name}}</strong>
+                                </span></div>
+                        </div>
+                        <div class="row no-gutters mt-3 mb-3 thinborder">
+                            <div class="col-lg-4">Store Location</div>
+                            <div class="col-lg-8"><span>
+                                    <strong>
+                                        {{buyer.location.name}}
+                                    </strong>
+                                </span></div>
+                        </div>
+                        <div class="row no-gutters mt-3 mb-3 thinborder">
+                            <div class="col-lg-4">Store Address</div>
+                            <div class="col-lg-8"><span>
+                                    <strong>
+                                        {{buyer.address | titlecase}}
+                                    </strong>
+                                </span></div>
+                        </div>
+                        <div class="row no-gutters mt-3 mb-3 thinborder">
+                            <div class="col-lg-4"><span>
+                                    Phone
+                                </span></div>
+                            <div class="col-lg-8"><span>
+                                    <strong>
+                                        {{buyer.phone}}
+                                    </strong>
+                                </span></div>
+                        </div>
+                        <div class="row no-gutters mt-3 mb-3 thinborder">
+                            <div class="col-lg-4"><span>
+                                    Wallet Balance
+                                </span></div>
+                            <div class="col-lg-8"><span>
+                                    <strong [style.color]="(buyer.walletBalance > 0)? 'green': 'red'">
+                                        {{buyer.walletBalance | customCurrency}}
+                                    </strong>
+                                </span></div>
+                        </div>
+                        <div class="row no-gutters mt-3 mb-3 thinborder">
+                            <div class="col-lg-4"><span>
+                                    Rating
+                                </span></div>
+                            <div class="col-lg-8"><span>
+                                    <strong>
+                                        3 Star
+                                    </strong>
+                                </span></div>
+                        </div>
+                        <div class="row no-gutters mt-3 mb-3 thinborder">
+                            <div class="col-lg-4"><span>
+                                    Date Joined
+                                </span></div>
+                            <div class="col-lg-8"><span>
+                                    <strong>
+                                        {{buyer.created | customDate}}
+                                    </strong>
+                                </span></div>
+                        </div>
+                        <div class="row no-gutters mt-3 mb-3 thinborder">
+                            <div class="col-lg-4">
+                                <span>
+                                    User Device
+                                </span>
+                            </div>
+                            <div class="col-lg-8">
+                                <span *ngIf="buyer.devices.length !== 0">
+                                    <strong>
+                                        {{buyer.devices.length}}
+                                        <span>{{ (buyer.devices.length > 1) ? 'Devices' : 'Device'}}</span>
+                                    </strong>
+                                </span>
+                                <span *ngIf="buyer.devices.length === 0">
+                                    No Device
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="h-100 first-tabs">
+                        <div id="accordion">
+                            <div class="card">
+                                <div class="card-header" id="headingOne">
+                                    <h5 class="mb-0">
+                                        <button class="btn btn-link no_underline" data-toggle="collapse"
+                                            data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                            Change Password
+                                        </button>
+                                    </h5>
+                                </div>
+                                <div id="collapseOne" class="collapse" aria-labelledby="headingOne"
+                                    data-parent="#accordion">
+                                    <div class="card-body">
+                                        <form [formGroup]="form">
+                                            <div class="form-group">
+                                                <input type="password" class="form-control" id="oldPassword"
+                                                    placeholder="Password" formControlName="hash">
+                                            </div>
+                                            <div class="form-group">
+                                                <input type="password" class="form-control" id="newPassword"
+                                                    placeholder="Enter Password Again" formControlName="newPassword">
+                                                <small class="form-error" *ngIf="showError">
+                                                    Passwords don't match!
+                                                </small>
+                                            </div>
+                                            <button id="submit" type="submit"
+                                                [disabled]="this.form.invalid || confirmPassword() === false"
+                                                class="btn btn-primary btn-block"
+                                                (click)="changePassword(this.form.value)">Submit</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 h-500">
+                <div class="">
+                    <div class="">
+                        <div class="card h-100 first-tabs">
+                            <div *ngIf="buyer.orders.length !== 0"
+                                class="d-flex justify-content-between align-items-center">
+                                <select class="form-control form-control-sm mr-2 text-capitalize"
+                                    (change)="filterTable($event)">
+                                    <option value="">Select one:</option>
+                                    <option *ngFor="let option of filterOptions" [value]="option">{{option}}
+                                    </option>
+                                </select>
+                                <button class="btn filter-btn">
+                                    <i class="fa fa-filter"></i> Filter
+                                </button>
+                                <div class="search-div">
+                                    <input type="text" (input)="search()" [(ngModel)]="query"
+                                        [ngModelOptions]="{standalone: true}" placeholder="Search Orders..."
+                                        class="search-input">
+                                    <i class="fa fa-search search-icon"></i>
+                                </div>
+                            </div>
+                            <div *ngIf="((buyer.orders.length !== 0) && (query === ''))">
+                                <div class="tab-content">
+                                    <div class="tab-pane active" id="new-list1" role="tabpanel"
+                                        aria-labelledby="new-list1-tab">
+                                        <table class="table">
+                                            <thead class="text-center">
+                                                <tr>
+                                                    <th scope="col">Status</th>
+                                                    <th scope="col">Order #</th>
+                                                    <th scope="col">Date</th>
+                                                    <th scope="col">Amount</th>
+                                                    <th scope="col">View</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="text-center">
+                                                <tr *ngFor="let order of sorted">
+                                                    <td class="order">
+                                                        <div class="order_status"
+                                                            [style.background-color]="orderStatusColor(order.tag)">
+                                                        </div>
+                                                    </td>
+                                                    <td>{{order.ref | uppercase}}</td>
+                                                    <td>{{order.created | customDate}}</td>
+                                                    <td>{{order.amount | customCurrency}}</td>
+                                                    <td><a [routerLink]="['/main/orders/item', order._id]"
+                                                            routerLinkActive="router-link-active">View</a></td>
+                                                </tr>
+                                                <tr *ngIf="sorted.length == 0">
+                                                    No Orders
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            <div *ngIf="((buyer.orders.length !== 0) && (query !== ''))">
+                                <div class="tab-content">
+                                    <div class="tab-pane active" id="new-list1" role="tabpanel"
+                                        aria-labelledby="new-list1-tab">
+                                        <table class="table">
+                                            <thead class="text-center">
+                                                <tr>
+                                                    <th scope="col">Status</th>
+                                                    <th scope="col">Order #</th>
+                                                    <th scope="col">Date</th>
+                                                    <th scope="col">Amount</th>
+                                                    <th scope="col">View</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="text-center">
+                                                <tr *ngFor="let order of queryArray">
+                                                    <td class="order">
+                                                        <div class="order_status"
+                                                            [style.background-color]="orderStatusColor(order.tag)">
+                                                        </div>
+                                                    </td>
+                                                    <td>{{order.ref | uppercase}}</td>
+                                                    <td>{{order.created | customDate}}</td>
+                                                    <td>{{order.amount | customCurrency}}</td>
+                                                    <td><a [routerLink]="['/main/orders/item', order._id]"
+                                                            routerLinkActive="router-link-active">View</a></td>
+                                                </tr>
+                                                <tr *ngIf="sorted.length == 0">
+                                                    No Orders
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            <div *ngIf="buyer.orders.length === 0">
+                                No Orders
+                            </div>
+                        </div>
+                        <div class="card h-100 first-tabs">
+                            <div *ngIf="buyer.tickets.length !== 0">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <select class="form-control form-control-sm">
+                                        <option value="">Select one:</option>
+                                        <option value="active">Active</option>
+                                        <option value="pending">Pending</option>
+                                        <option value="failed">Failed</option>
+                                    </select>
+                                    <button class="btn filter-btn">
+                                        <i class="fa fa-filter"></i> Filter
+                                    </button>
+                                    <div class="search-div">
+                                        <input type="text" placeholder="Search Tickets..." class="search-input">
+                                        <i class="fa fa-search search-icon"></i>
+                                    </div>
+                                </div>
+                                <div class="tab-content">
+                                    <div class="tab-pane active" id="new-list1" role="tabpanel"
+                                        aria-labelledby="new-list1-tab">
+                                        <table class="table">
+                                            <thead>
+                                                <tr>
+                                                    <th scope="col">Status</th>
+                                                    <th scope="col">Ticket #</th>
+                                                    <th scope="col">Date</th>
+                                                    <th scope="col">View</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr *ngFor="let ticket of buyer.tickets; let i = index">
+                                                    <td class="ticket">
+                                                        <div class="order_status"
+                                                            [style.background-color]="orderStatusColor(ticket.status)">
+                                                        </div>
+                                                    </td>
+                                                    <td>{{ticketIds[i] | uppercase}}</td>
+                                                    <td>{{ticket.created | customDate}}</td>
+                                                    <td><a href="">View</a></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            <div *ngIf="buyer.tickets.length === 0">
+                                No tickets
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

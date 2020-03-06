@@ -1,0 +1,253 @@
+<div class="content-wrap">
+  <!--Top dashboard nav from /components/main/main-nav-->
+  <!--the title prop is a string set in the .ts file of this component. An example is "Manufacturer". This will show on the top dashboard nav-->
+  <app-main-nav [title]="title" [mode]="modeWatch | async" [componentInstance]="this"></app-main-nav>
+
+  <!--Main content here-->
+  <div class="container">
+    <ng-container *ngIf="mode === modes[0]">
+      <div class="sub-header mt-3">
+          <div>
+            Sort by
+            <select class="form-control form-control-sm">
+                <option value="all" selected>All</option>
+                <option></option>
+            </select>
+          </div>
+          <div>
+            <input type="text" class="form-control form-control-sm"(input)="search()" [(ngModel)]="query" [ngModelOptions]="{standalone: true}" placeholder="Search..." />
+          </div>
+          <div>
+            <button class="btn btn-primary btn-sm float-right" (click)="setMode(1)">
+              Add Billing
+            </button>
+          </div>
+      </div>
+    </ng-container>
+    <ng-container *ngIf="mode === modes[2]">
+      <div class="sub-header mt-3">
+        <div>
+          <button class="btn btn-danger btn-sm float-right" (click)="spawnDelete(currentBilling._id)">
+            Delete Billing
+          </button>
+        </div>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="mode === modes[0]">
+      <div class="row mt-5">
+        <ng-container *ngIf="billings; else nullBillings">
+          <ng-container *ngIf="billings.length > 0; else emptyBillings">
+            <ng-container *ngIf="query === ''; else searchResults">
+                <div class="col-sm-6 col-lg-4 my-2" *ngFor="let billing of sorted | paginate: { itemsPerPage: 6, currentPage: p}">
+                  <div class="card item-card">
+                    <div class="card-body">
+                      <div class="item-card-info">
+                        <div>
+                          <h5 class="item-name">{{billing.title}}</h5>
+                          <span class="item-description">{{billing.code}}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="card-footer">
+                      <a [routerLink]="['instructions/' + billing._id]">
+                        <b>{{billing.instructions}}</b> Instructions
+                      </a> &nbsp;
+                      <button (click)="spawnEdit(billing)" class="btn btn-outline-primary btn-xs">Edit</button>
+                    </div>
+                  </div>
+                </div>
+            </ng-container>
+            <ng-template #searchResults>
+              <div class="col-sm-6 col-lg-4 my-2" *ngFor="let billing of queryArray | paginate: { itemsPerPage: 6, currentPage: p}">
+                <div class="card item-card">
+                  <div class="card-body">
+                    <div class="item-card-info">
+                      <div>
+                        <h5 class="item-name">{{billing.title}}</h5>
+                        <span class="item-description">{{billing.code}}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="card-footer">
+                    <a [routerLink]="['instructions/' + billing._id]">
+                      <b>{{billing.instructions}}</b> Instructions
+                    </a> &nbsp;
+                    <button (click)="spawnEdit(billing)" class="btn btn-outline-primary btn-xs">Edit</button>
+                  </div>
+                </div>
+              </div>
+            </ng-template>
+          </ng-container>
+          <ng-template #emptyBillings>
+            <div class="col-12 col-md-12">
+              <div class="empty-state text-center">
+                <img src="../../../../assets/img/empty-data.svg">
+                <h5 class="mt-3">No billings</h5>
+                <p>No billings were found for this query. Please try another query or clear your filters.</p>
+              </div>
+            </div>
+          </ng-template>
+        </ng-container>
+        <ng-template #nullBillings>
+          <div class="col-12 col-md-12">
+            <div class="content-loader">
+              <span class="__1"></span>
+              <span class="__2"></span>
+              <span class="__3"></span>
+              <span class="__4"></span>
+            </div>
+          </div>
+        </ng-template>
+      </div>
+    </ng-container>
+    <ng-container *ngIf="(mode === modes[0]) && billings">
+        <pagination-controls *ngIf="query !== '' && queryArray.length > 6" class="pagination" responsive="true" (pageChange)="p = $event"></pagination-controls>
+        <pagination-controls *ngIf="query === '' && sorted.length > 6" class="pagination" responsive="true" (pageChange)="p = $event"></pagination-controls>
+    </ng-container>
+
+    <ng-container *ngIf="mode === modes[1]">
+      <div class="row form justify-content-center my-5">
+        <div class="col-12 col-md-7">
+          <form class="card panel-card" [formGroup]="createForm">
+            <div class="card-header">
+              <h5 class="card-title">New Billing</h5>
+            </div>
+            <div class="card-body">
+              <div class="row mt-3"></div>
+              <div class="row">
+                <div class="col-12 col-md-6">
+                  <div class="form-group">
+                    <label for="title">Title</label>
+                    <input name="title" class="form-control" id="title" aria-describedby="title" formControlName="title">
+                    <small class="form-error" *ngIf="!createForm.controls.title.valid && !!createForm.controls.title.dirty">
+                      Enter billing title
+                    </small>
+                  </div>
+                </div>
+                <div class="col-12 col-md-6">
+                  <div class="form-group">
+                    <label for="code">Code</label>
+                    <input name="code" class="form-control" id="code" aria-describedby="code" formControlName="code">
+                    <small class="form-error" *ngIf="!createForm.controls.code.valid && !!createForm.controls.code.dirty">
+                      Enter billing code
+                    </small>
+                  </div>
+                </div>
+                <div class="col-12 col-md-6">
+                  <div class="form-group">
+                    <label for="min">Minimum</label>
+                    <input type="number" name="min" class="form-control" id="min" aria-describedby="minimum" formControlName="minimum">
+                    <small class="form-error" *ngIf="!createForm.controls.minimum.valid && !!createForm.controls.minimum.dirty">
+                      Enter minimum value
+                    </small>
+                  </div>
+                </div>
+                <div class="col-12 col-md-6">
+                  <div class="form-group">
+                    <label for="max">Maximum</label>
+                    <input type="number" name="max" class="form-control" id="max" aria-describedby="maximum" formControlName="maximum">
+                    <small class="form-error" *ngIf="!createForm.controls.maximum.valid && !!createForm.controls.maximum.dirty">
+                      Enter maximum value
+                    </small>
+                  </div>
+                </div>
+                <div class="col-12 col-md-6">
+                  <div class="form-group">
+                    <label for="status">Status</label>
+                    <select name="status" class="form-control" id="status" aria-describedby="status" formControlName="status">
+                      <option *ngFor="let status of statuses" [value]="[status.value]">{{status.name}}</option>
+                    </select>
+                    <small class="form-error" *ngIf="!createForm.controls.status.valid && !!createForm.controls.status.dirty">
+                      Select a status
+                    </small>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card-footer">
+              <button [disabled]="!createForm.valid" (click)="createAction()" type="submit" class="btn btn-primary">
+                Create
+              </button>
+              <button (click)="closeForm(0)" class="btn btn-light float-right">
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="mode === modes[2]">
+      <div class="row form justify-content-center my-5">
+        <div class="col-12 col-md-7">
+          <form class="card panel-card" [formGroup]="editForm">
+            <div class="card-header">
+              <h5 class="card-title">Edit Billing</h5>
+            </div>
+            <div class="card-body">
+              <div class="row mt-3"></div>
+              <div class="row">
+                <div class="col-12 col-md-6">
+                  <div class="form-group">
+                    <label for="title">Title</label>
+                    <input name="title" class="form-control" id="title" aria-describedby="title" formControlName="title">
+                    <small class="form-error" *ngIf="!editForm.controls.title.valid && !!editForm.controls.title.dirty">
+                      Enter billing title
+                    </small>
+                  </div>
+                </div>
+                <div class="col-12 col-md-6">
+                  <div class="form-group">
+                    <label for="code">Code</label>
+                    <input name="code" class="form-control" id="code" aria-describedby="code" formControlName="code">
+                    <small class="form-error" *ngIf="!editForm.controls.code.valid && !!editForm.controls.code.dirty">
+                      Enter billing code
+                    </small>
+                  </div>
+                </div>
+                <div class="col-12 col-md-6">
+                  <div class="form-group">
+                    <label for="min">Minimum</label>
+                    <input type="number" name="min" class="form-control" id="min" aria-describedby="minimum" formControlName="minimum">
+                    <small class="form-error" *ngIf="!editForm.controls.minimum.valid && !!editForm.controls.minimum.dirty">
+                      Enter minimum value
+                    </small>
+                  </div>
+                </div>
+                <div class="col-12 col-md-6">
+                  <div class="form-group">
+                    <label for="max">Maximum</label>
+                    <input type="number" name="max" class="form-control" id="max" aria-describedby="maximum" formControlName="maximum">
+                    <small class="form-error" *ngIf="!editForm.controls.maximum.valid && !!editForm.controls.maximum.dirty">
+                      Enter maximum value
+                    </small>
+                  </div>
+                </div>
+                <div class="col-12 col-md-6">
+                  <div class="form-group">
+                    <label for="status">Status</label>
+                    <select name="status" class="form-control" id="status" aria-describedby="status" formControlName="status">
+                      <option *ngFor="let status of statuses" [value]="[status.value]">{{status.name}}</option>
+                    </select>
+                    <small class="form-error" *ngIf="!editForm.controls.status.valid && !!editForm.controls.status.dirty">
+                      Select a status
+                    </small>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card-footer">
+              <button [disabled]="!editForm.valid" (click)="editAction()" type="submit" class="btn btn-primary">
+                Edit
+              </button>
+              <button (click)="closeForm(0)" class="btn btn-light float-right">
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </ng-container>  
+  </div>
+</div>

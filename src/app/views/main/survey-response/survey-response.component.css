@@ -1,0 +1,42 @@
+.img {
+  display: block;
+  margin: auto;
+  max-width: 500px;
+  max-height: 200px;
+  width: 100%;
+}
+
+.answer {
+  display: flex;
+  height: 36px;
+  align-items: center;
+  margin-bottom: 8px;
+  position: relative;
+}
+
+.answer .text {
+  display: block;
+  margin: 0 10px;
+  z-index: 10;
+}
+
+.answer .text b {
+  display: inline-block;
+  margin-right: 6px;
+}
+
+.answer .bar {
+  border-radius: 6px;
+  position: absolute;
+  width: 10%;
+  height: 36px;
+  background: rgba(59,84,236,0.04);
+}
+
+.answer.highest .bar {
+  background: rgba(35,203,253,0.20);
+}
+
+hr {
+  border: 1px solid #eaeaea;
+}

@@ -1,0 +1,26 @@
+.login-section .card {
+	margin: 0 auto 30px;
+	max-width: 400px;
+}
+
+.login-title {
+	color: #171C34;
+	font-size: 18px;
+	margin-top: 30px;
+	text-align: center
+}
+
+.login-subtitle {
+	color: rgba(23,28,52,0.40);
+	font-size: 13px;
+	text-align: center;
+}
+
+input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}

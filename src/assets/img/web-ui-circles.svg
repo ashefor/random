@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1086px" height="543px" viewBox="0 0 1086 543" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 52.5 (67469) - http://www.bohemiancoding.com/sketch -->
+    <title>Circles</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="linearGradient-1">
+            <stop stop-color="#FFFFFF" stop-opacity="0.4" offset="0%"></stop>
+            <stop stop-color="#D0F8F6" offset="100%"></stop>
+        </linearGradient>
+    </defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" opacity="0.5">
+        <g id="Landing-Copy" transform="translate(-140.000000, -194.000000)" fill-rule="nonzero" stroke="url(#linearGradient-1)">
+            <g id="Hero">
+                <g id="Circles">
+                    <g transform="translate(141.000000, 195.000000)" id="Group-2">
+                        <g opacity="0.4">
+                            <circle id="Oval" cx="542" cy="542" r="137"></circle>
+                            <circle id="Oval" cx="542" cy="542" r="265"></circle>
+                            <circle id="Oval" cx="542" cy="542" r="410"></circle>
+                            <circle id="Oval" cx="542" cy="542" r="542"></circle>
+                        </g>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

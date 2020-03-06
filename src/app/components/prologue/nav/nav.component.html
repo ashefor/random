@@ -1,0 +1,59 @@
+<nav id="nav" class="navbar navbar-expand-lg navbar-light fixed-top">
+  <div class="container">
+    <!-- Suplias Logo -->
+    <a class="navbar-brand" href="#">
+      <img src="../../../../assets/img/suplias-logo.svg" alt="">
+    </a>
+
+    <!-- Mobile Nav Buttons -->
+    <ul class="navbar-nav ml-auto mr-3 d-lg-none d-block">
+      <li class="nav-item">
+        <a *ngIf="loggedIn() === false" [routerLink]="['/login']" class="btn btn-sm btn-primary d-none d-lg-block">
+          Log In
+        </a>
+      </li>
+      <li class="nav-item">
+        <a *ngIf="loggedIn() === true" [routerLink]="['/main/dashboard']" class="btn btn-sm btn-dark">
+          My Dashboard
+        </a>
+      </li>
+    </ul>
+
+    <!-- Hamburger Button -->
+    <div id="hamburger" class="navbar-toggler hamburger d-block d-lg-none collapsed" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+
+    <!-- Responsive Nav -->
+    <div class="collapse navbar-collapse" id="navbarResponsive">
+      <ul class="navbar-nav ml-auto mr-auto">
+        <li class="nav-item">
+            <a class="nav-link" href="/landing#features">Features</a>
+          </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/landing#waiting-list">Waiting List</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/landing#download">Download</a>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Desktop Nav Buttons -->
+    <ul class="navbar-nav d-none d-lg-block">
+      <li class="nav-item">
+        <a *ngIf="loggedIn() === false" [routerLink]="[ '/login']" class="btn btn-primary d-none d-lg-block">
+          Log In
+        </a>
+      </li>
+      <li class="nav-item">
+        <a *ngIf="loggedIn() === true" [routerLink]="['/main/dashboard']" class="btn btn-primary">
+          My Dashboard
+        </a>
+      </li>
+    </ul>
+
+  </div>
+</nav>

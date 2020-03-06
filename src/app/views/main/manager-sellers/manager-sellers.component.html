@@ -1,0 +1,267 @@
+<div class="content-wrap">
+  <!--Top dashboard nav from /components/main/main-nav-->
+  <!--the title prop is a string set in the .ts file of this component. An example is "Manufacturer". This will show on the top dashboard nav-->
+  <app-main-nav [title]="title"></app-main-nav>
+
+  <!--Main content here-->
+  <div class="container">
+    <div class="sub-header mt-3">
+      <div>
+        Sort by
+        <select (change)="sort($event)" class="form-control form-control-sm">
+            <option value="today" selected>Today</option>
+            <option *ngFor="let range of ranges" [value]="[range.value]">{{range.name}}</option>
+        </select>
+      </div>
+    </div>
+    
+    <div *ngIf="currentRange === 'today'" class="row justify-content-center mt-5">
+      <div *ngIf="currentRange === 'today' && !dayStats" class="col-12">
+        <div class="content-loader">
+          <span class="__1"></span>
+          <span class="__2"></span>
+          <span class="__3"></span>
+          <span class="__4"></span>
+        </div>
+      </div>
+      <div *ngIf="currentRange === 'today' && dayStats" class="col-12">
+        <div class="card panel-card">
+          <div class="card-header">
+            <h5 class="card-title">Leaderboard
+              <div class="pull-right">
+                <select (change)="filter($event, dayStats)" class="form-control form-control-sm">
+                    <option value="fulfilled" selected>Fulfilled</option>
+                    <option *ngFor="let criterion of criteria" [value]="[criterion.value]">{{criterion.name}}</option>
+                </select>
+              </div>
+            </h5>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-12">
+                <div class="table-responsive">
+                  <table class="table table-hover">
+                    <thead>
+                      <tr>
+                        <th>S/N</th>
+                        <th>Distributor</th>
+                        <th>Fulfilled</th>
+                        <th>Total cancelled</th>
+                        <th>Cancelled by buyer</th>
+                        <th>Cancelled by sales reps</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let stat of dayStats; let i=index">
+                        <td>{{i + 1}}</td>
+                        <td>{{stat.name}}
+                          <span *ngIf="i === 0" class="badge badge-warning text-white">1<sup>st</sup></span>
+                          <span *ngIf="i === 1" class="badge badge-primary text-white">2<sup>nd</sup></span>
+                          <span *ngIf="i === 2" class="badge badge-dark">3<sup>rd</sup></span>
+                        </td>
+                        <td>{{stat.stats.fulfilled}}</td>
+                        <td>{{stat.stats.cancelled}}</td>
+                        <td>{{stat.stats.cancelled_buyer}}</td>
+                        <td>{{stat.stats.cancelled_seller}}</td>
+                        <td>
+                          <a [routerLink]="['/main/stats/orders/' + stat.name + '/' + stat._id]" routerLinkActive="router-link-active" >More stats</a> &nbsp;
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div *ngIf="currentRange === 'week'" class="row justify-content-center mt-5">
+      <div *ngIf="currentRange === 'week' && !weekStats" class="col-12">
+        <div class="content-loader">
+          <span class="__1"></span>
+          <span class="__2"></span>
+          <span class="__3"></span>
+          <span class="__4"></span>
+        </div>
+      </div>
+      <div *ngIf="currentRange === 'week' && weekStats" class="col-12">
+        <div class="card panel-card">
+          <div class="card-header">
+            <h5 class="card-title">Leaderboard
+              <div class="pull-right">
+                <select (change)="filter($event, weekStats)" class="form-control form-control-sm">
+                    <option value="fulfilled" selected>Fulfilled</option>
+                    <option *ngFor="let criterion of criteria" [value]="[criterion.value]">{{criterion.name}}</option>
+                </select>
+              </div>
+            </h5>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-12">
+                <div class="table-responsive">
+                  <table class="table table-hover">
+                    <thead>
+                      <tr>
+                        <th>S/N</th>
+                        <th>Distributor</th>
+                        <th>Fulfilled</th>
+                        <th>Total cancelled</th>
+                        <th>Cancelled by buyer</th>
+                        <th>Cancelled by sales reps</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let stat of weekStats; let i=index">
+                        <td>{{i + 1}}</td>
+                        <td>{{stat.name}}
+                          <span *ngIf="i === 0" class="badge badge-warning text-white">1<sup>st</sup></span>
+                          <span *ngIf="i === 1" class="badge badge-primary text-white">2<sup>nd</sup></span>
+                          <span *ngIf="i === 2" class="badge badge-dark">3<sup>rd</sup></span>
+                        </td>
+                        <td>{{stat.stats.fulfilled}}</td>
+                        <td>{{stat.stats.cancelled}}</td>
+                        <td>{{stat.stats.cancelled_buyer}}</td>
+                        <td>{{stat.stats.cancelled_seller}}</td>
+                        <td>
+                          <a [routerLink]="['/main/stats/orders/' + stat.name + '/' + stat._id]" routerLinkActive="router-link-active" >More stats</a> &nbsp;
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div *ngIf="currentRange === 'month'" class="row justify-content-center mt-5">
+      <div *ngIf="currentRange === 'month' && !monthStats" class="col-12">
+        <div class="content-loader">
+          <span class="__1"></span>
+          <span class="__2"></span>
+          <span class="__3"></span>
+          <span class="__4"></span>
+        </div>
+      </div>
+      <div *ngIf="currentRange === 'month' && monthStats" class="col-12">
+        <div class="card panel-card">
+          <div class="card-header">
+            <h5 class="card-title">Leaderboard
+              <div class="pull-right">
+                <select (change)="filter($event, monthStats)" class="form-control form-control-sm">
+                    <option value="fulfilled" selected>Fulfilled</option>
+                    <option *ngFor="let criterion of criteria" [value]="[criterion.value]">{{criterion.name}}</option>
+                </select>
+              </div>
+            </h5>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-12">
+                <div class="table-responsive">
+                  <table class="table table-hover">
+                    <thead>
+                      <tr>
+                        <th>S/N</th>
+                        <th>Distributor</th>
+                        <th>Fulfilled</th>
+                        <th>Total cancelled</th>
+                        <th>Cancelled by buyer</th>
+                        <th>Cancelled by sales reps</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let stat of monthStats; let i=index">
+                        <td>{{i + 1}}</td>
+                        <td>{{stat.name}}
+                          <span *ngIf="i === 0" class="badge badge-warning text-white">1<sup>st</sup></span>
+                          <span *ngIf="i === 1" class="badge badge-primary text-white">2<sup>nd</sup></span>
+                          <span *ngIf="i === 2" class="badge badge-dark">3<sup>rd</sup></span>
+                        </td>
+                        <td>{{stat.stats.fulfilled}}</td>
+                        <td>{{stat.stats.cancelled}}</td>
+                        <td>{{stat.stats.cancelled_buyer}}</td>
+                        <td>{{stat.stats.cancelled_seller}}</td>
+                        <td>
+                          <a [routerLink]="['/main/stats/orders/' + stat.name + '/' + stat._id]" routerLinkActive="router-link-active" >More stats</a> &nbsp;
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div *ngIf="currentRange === 'year'" class="row justify-content-center mt-5">
+      <div *ngIf="currentRange === 'year' && !yearStats" class="col-12">
+        <div class="content-loader">
+          <span class="__1"></span>
+          <span class="__2"></span>
+          <span class="__3"></span>
+          <span class="__4"></span>
+        </div>
+      </div>
+      <div *ngIf="currentRange === 'year' && yearStats" class="col-12">
+        <div class="card panel-card">
+          <div class="card-header">
+            <h5 class="card-title">Leaderboard
+              <div class="pull-right">
+                <select (change)="filter($event, yearStats)" class="form-control form-control-sm">
+                    <option value="fulfilled" selected>Fulfilled</option>
+                    <option *ngFor="let criterion of criteria" [value]="[criterion.value]">{{criterion.name}}</option>
+                </select>
+              </div>
+            </h5>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-12">
+                <div class="table-responsive">
+                  <table class="table table-hover">
+                    <thead>
+                      <tr>
+                        <th>S/N</th>
+                        <th>Distributor</th>
+                        <th>Fulfilled</th>
+                        <th>Total cancelled</th>
+                        <th>Cancelled by buyer</th>
+                        <th>Cancelled by sales reps</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let stat of yearStats; let i=index">
+                        <td>{{i + 1}}</td>
+                        <td>{{stat.name}}
+                          <span *ngIf="i === 0" class="badge badge-warning text-white">1<sup>st</sup></span>
+                          <span *ngIf="i === 1" class="badge badge-primary text-white">2<sup>nd</sup></span>
+                          <span *ngIf="i === 2" class="badge badge-dark">3<sup>rd</sup></span>
+                        </td>
+                        <td>{{stat.stats.fulfilled}}</td>
+                        <td>{{stat.stats.cancelled}}</td>
+                        <td>{{stat.stats.cancelled_buyer}}</td>
+                        <td>{{stat.stats.cancelled_seller}}</td>
+                        <td>
+                          <a [routerLink]="['/main/stats/orders/' + stat.name + '/' + stat._id]" routerLinkActive="router-link-active" >More stats</a> &nbsp;
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

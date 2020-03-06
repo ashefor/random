@@ -1,0 +1,46 @@
+.img {
+  border-radius: 10px;
+  display: block;
+  margin: auto;
+  max-width: 500px;
+  max-height: 200px;
+  width: 100%;
+}
+
+.img:hover {
+  cursor: zoom-in;
+}
+
+.task-meta-data {
+  margin-bottom: 10px;
+}
+
+.task-meta-data .tag {
+	font-size: 12px;
+	font-weight: 700;
+	text-transform: uppercase;
+}
+
+.approved,
+.rejected,
+.pending {
+  border-radius: 6px;
+  font-size: smaller;
+  font-weight: 400;
+  padding: 8px 12px;
+}
+
+.approved {
+  background: rgba(53, 164, 84, 0.1);
+  color: rgb(53, 164, 84);
+}
+
+.rejected {
+  background: rgba(238, 57, 57, 0.1);
+  color: rgb(238, 57, 57);
+}
+
+.pending {
+  background: rgba(249, 177, 61, 0.1);
+  color: rgb(249, 177, 61);
+}

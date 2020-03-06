@@ -1,0 +1,146 @@
+<div class="content-wrap">
+    <app-main-nav [title]="title"></app-main-nav>
+    <div class="container">
+        <div *ngIf="!orderItems" class="content-loader">
+            <span class="__1"></span>
+            <span class="__2"></span>
+            <span class="__3"></span>
+            <span class="__4"></span>
+        </div>
+        <div class="row justify-content-center mt-5" *ngIf="orderItems">
+            <ng-container *ngIf="orderItems.length else noOrderItems">
+            <div class="col-sm-6 col-lg-6 my-2">
+                <div class="h-500">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h6 class="mb-5">Order </h6>
+                            <div class="row no-gutters mt-3 mb-3 thinborder">
+                                <div class="col-lg-4">
+                                    <span>
+                                        Order ID
+                                    </span>
+                                </div>
+                                <div class="col-lg-8">
+                                    <span class="font_weight_500">
+                                        {{orderDetails.ref}}
+                                    </span></div>
+                            </div>
+                            <div class="row no-gutters mt-3 mb-3 thinborder">
+                                <div class="col-lg-4"><span>
+                                        Date Joined
+                                    </span></div>
+                                <div class="col-lg-8">
+                                    <span class="font_weight_500">
+                                        {{orderDetails.buyer.created | customDate}}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="row no-gutters mt-3 mb-3 thinborder">
+                                <div class="col-lg-4">
+                                    <span>
+                                        Buyer's Name
+                                    </span>
+                                </div>
+                                <div class="col-lg-8">
+                                    <span class="font_weight_500">
+                                        {{orderDetails.buyer.name}}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="row no-gutters mt-3 mb-3 thinborder">
+                                <div class="col-lg-4">
+                                    Phone
+                                </div>
+                                <div class="col-lg-8">
+                                    <span class="font_weight_500">
+                                        {{orderDetails.buyer.phone}}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="row no-gutters mt-3 mb-3 thinborder align-items-center h-45">
+                                <div class="col-lg-4"><span>
+                                        Status
+                                    </span></div>
+                                <div class="col-lg-8">
+                                    <div class="font_weight_500" *ngIf="!editStatus">
+                                        {{orderDetails.tag | titlecase}} &nbsp;
+                                        <button class="btn btn-outline-primary btn-xs"
+                                            *ngIf="orderDetails.tag !== 'completed'" (click)="showChangeStatus()">
+                                            Change</button>
+                                    </div>
+                                    <div *ngIf="editStatus">
+                                        <select class="form-control form-control-sm mr-2 text-capitalize"
+                                            (change)="changeStatus($event)">
+                                            <option value="null">Change Status:</option>
+                                            <ng-container *ngFor="let option of filterOptions">
+                                                <option *ngIf="option !== orderDetails.tag" [value]="option">
+                                                    {{option}}
+                                                </option>
+                                            </ng-container>
+                                        </select>
+                                        <button class="btn btn-outline-primary btn-xs" (click)="showChangeStatus()">
+                                            Cancel</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row no-gutters mt-3 mb-3 thinborder">
+                                <div class="col-lg-4"><span>
+                                        Total
+                                    </span></div>
+                                <div class="col-lg-8">
+                                    <span class="font_weight_500">
+                                        {{orderDetails.amount | customCurrency}}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-lg-6 my-2">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <h6 class="mb-5">Order Items</h6>
+                            <button class="btn filter-btn">
+                                Edit List
+                            </button>
+                        </div>
+                        <div class="card my-2" *ngFor="let item of orderItems">
+                            <div class="card-body">
+                                <div class="row">
+                                    <span class="col-lg-5">
+                                        {{item.product.name}}
+                                    </span>
+                                    <span class="col-lg-4 text-left">
+                                        <span *ngIf="item.quantity !== 0">
+                                            {{item.quantity}}
+                                            <span>{{ (item.quantity > 1) ? 'units' : 'unit' }}</span>
+                                            <span> ({{item.product.case_count}}/carton)</span>
+                                        </span>
+                                        <span *ngIf="item.quantity === 0">
+                                            No units
+                                        </span>
+                                    </span>
+                                    <span class="col-lg-3 text-right font_weight_500">
+                                        {{ getItemPrice(item) | customCurrency }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </ng-container>
+        <ng-template #noOrderItems>
+                <div class="col-12 col-md-6">
+                        <div class="empty-state text-center">
+                            <img src="../../../../assets/img/empty-data.svg">
+                            <h5 class="mt-3">No Order Items</h5>
+                            <p>No order items were found for this buyer</p>
+                        </div>
+                    </div>
+        </ng-template>
+        </div>
+    </div>
+</div>

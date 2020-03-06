@@ -1,0 +1,15 @@
+.card{
+    margin-bottom: 1rem;
+}
+.order, .ticket{
+    display: flex;
+    justify-content: center;
+}
+.order_status{
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+}
+.no_underline{
+    text-decoration: none;
+}

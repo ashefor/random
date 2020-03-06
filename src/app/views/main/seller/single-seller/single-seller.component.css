@@ -1,0 +1,9 @@
+.order_status{
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+}
+.order{
+    display: flex;
+    justify-content: center;
+}

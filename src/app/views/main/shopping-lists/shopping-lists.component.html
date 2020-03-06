@@ -1,0 +1,54 @@
+<div class="content-wrap">
+    <app-main-nav [title]="title"></app-main-nav>
+    <div class="container">
+        <div *ngIf="!allShoppingList" class="content-loader">
+            <span class="__1"></span>
+            <span class="__2"></span>
+            <span class="__3"></span>
+            <span class="__4"></span>
+        </div>
+        <div class="row" *ngIf="allShoppingList">
+            <div class="card h-100 w-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="search-div">
+                            <i class="fa fa-search search-icon"></i>
+                            <input type="text" placeholder="search lists..." class="search-input">
+                        </div>
+                    </div>
+                    <table class="table table-hover mt-3">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Buyer's Name</th>
+                                <th scope="col">Store Type</th>
+                                <th scope="col">Location</th>
+                                <th scope="col">Address</th>
+                                <th scope="col">View</th>
+                            </tr>
+                        </thead>
+                        <tbody
+                            *ngFor="let list of allShoppingList | paginate: { itemsPerPage: itemsPerPage, currentPage: currentPage}; let i = index">
+                            <tr>
+                                <td scope="row">{{itemIndex(i+1)}}</td>
+                                <td>{{list.buyer.name}}</td>
+                                <td>{{list.buyer.store_type.name}}</td>
+                                <td>{{list.buyer.location.name}}</td>
+                                <td>{{list.buyer.address}}</td>
+                                <td>
+                                    <a href="javascript:void(0)" (click)="openShoppingList(list)">View</a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div>
+                        <ng-container *ngIf="allShoppingList">
+                            <pagination-controls *ngIf="allShoppingList.length > 9" class="pagination" responsive="true"
+                                (pageChange)="currentPage = $event"></pagination-controls>
+                        </ng-container>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,664 @@
+<div class="content-wrap">
+  <!--Top dashboard nav from /components/main/main-nav-->
+  <!--the title prop is a string set in the .ts file of this component. An example is "Manufacturer". This will show on the top dashboard nav-->
+  <app-main-nav [title]="title" [mode]="modeWatch | async" [componentInstance]="this"></app-main-nav>
+
+  <!--Main content here-->
+  <div class="container">
+    <div *ngIf="mode === modes[0]" class="sub-header mt-3">
+      <div>
+        <button [routerLink]="['/main/tasks']"  class="btn btn-sm btn-light">
+          &larr; Back to Tasks
+        </button>
+      </div>
+      <div>
+        <div class="d-flex justify-content-end">
+          <div class="text-muted">
+            <div class="input-group">
+              <input placement="bottom" placeholder="Set Start Date" type="text" class="form-control form-control-sm" bsDatepicker (bsValueChange)="setStartDate($event)" [bsConfig]="bsConfig" [maxDate]="maxDate">
+              <input placement="bottom" placeholder="Set End Date" type="text" class="form-control form-control-sm" bsDatepicker (bsValueChange)="setEndDateAndFilterResponse($event)" [bsConfig]="bsConfig" [disabled]="!dateRange.startDate" [maxDate]="maxDate">
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- <div class="col-12 col-md-6">
+        <input type="text" class="form-control form-control-sm"(input)="search()" [(ngModel)]="query" [ngModelOptions]="{standalone: true}" placeholder="Search...">
+      </div> -->
+    </div>
+
+    <ng-container *ngIf="state === 'report'">
+      <div *ngIf="mode === modes[0] && (task && responses)" class="row form justify-content-center my-5">
+        <div class="col-12">
+          <div class="card panel-card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <h5 class="card-title">Task Report</h5>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-12">
+                  <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                          <tr>
+                            <th>Start Date</th>
+                            <th>Title</th>
+                            <th>Responses</th>
+                            <th></th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td>{{task.created | happroxy: 'time' }}</td>
+                            <td>{{task.title}}</td>
+                            <td>{{responses.length}}</td>
+                            <td></td>
+                          </tr>
+                        </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- Task Report -->
+    <div hidden id="printable" class="row form justify-content-center mb-4">
+      <table id="responseTable" *ngIf="task && responses" class="table">
+        <thead>
+          <tr>
+            <th>S/N</th>
+            <th>Date</th>
+            <th>Store</th>
+            <th>Type</th>
+            <th>Location</th>
+            <ng-container *ngFor="let meta of task.metaData; let i = index">
+              <th>KA {{i + 1}}</th>
+            </ng-container>
+            <th>Response</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let response of sorted; let i = index">
+            <td>{{i + 1}}</td>
+            <td>{{response.created | customDate}}</td>
+            <td>{{response.buyer['name']}}</td>
+            <td>{{response.buyer['store']}}</td>
+            <td>{{response.buyer['location']}}</td>
+            <ng-container *ngIf="response.metaData.length > 0; else noMetaData">
+              <ng-container *ngFor="let meta of task.metaData">
+                <td>{{getResponseMetaFlag(0, response.metaData, meta)}}</td>
+              </ng-container>
+            </ng-container>
+            <ng-template #noMetaData>
+              <ng-container *ngFor="let meta of task.metaData;">
+                <td>-</td>
+              </ng-container>
+            </ng-template>
+            <td>{{sentenceCase(response.status)}}</td>
+          </tr>
+        </tbody>
+      </table>
+      <table id="channelSummaryTable" *ngIf="task && responses" class="table">
+        <thead>
+          <tr>
+            <th>S/N</th>
+            <th>Channel (Store Type)</th>
+            <th>Responded</th>
+            <ng-container *ngFor="let meta of task.metaData; let i = index">
+              <th data-toggle="tooltip" data-placement="top" [title]="meta.value">KA {{i + 1}}</th>
+            </ng-container>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let summary of channelSummary; let i = index">
+            <td>{{i + 1}}</td>
+            <td>{{summary.store}}</td>
+            <td>{{summary.responses}}</td>
+            <ng-container *ngFor="let meta of task.metaData">
+              <td>{{getSummaryMetaResponseCount(summary, meta)}}</td>
+            </ng-container>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div *ngIf="(mode === modes[0]) && !responses" class="row justify-content-center">
+      <div class="col-12 col-md-6">
+        <!-- <div *ngIf="(mode === modes[0]) && responses && responses.length === 0" class="empty-state text-center">
+          <img src="../../../../assets/img/empty-data.svg">
+          <h5 class="mt-3">No entries</h5>
+          <p>No entries were found for this query. Please try another query or clear your filters.</p>
+        </div> -->
+        <div class="content-loader">
+          <span class="__1"></span>
+          <span class="__2"></span>
+          <span class="__3"></span>
+          <span class="__4"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Graphs -->
+    <ng-container *ngIf="state === 'report'">
+      <ng-container *ngIf="mode === modes[0] && (task && responses)">
+        <div class="row mb-4">
+          <div class="col-12 col-md-6" *ngIf="responseSummary">
+            <div class="card panel-card">
+              <div class="card-header">
+                <h5 class="card-title">Response</h5>
+              </div>
+              <div class="card-body">
+                <div class="d-block">
+                  <ng-container *ngIf="responses.length > 0 && responseSummary.chartData.length > 0; else noResponseSummary">
+                    <canvas height="150" mdbChart [chartType]="'pie'" [datasets]="responseSummary.chartData"
+                    [labels]="responseSummary.chartLabels" [colors]="responseSummary.chartColors"
+                    [options]="responseSummary.chartOptions" [legend]="true">
+                    </canvas>
+                  </ng-container>
+                  <ng-template #noResponseSummary>
+                    <div class="empty-state text-center">
+                      <img src="../../../../assets/img/empty-unknown.svg" alt="">
+                      <p class="mt-2">No response data currently available</p>
+                    </div>
+                  </ng-template>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-12 col-md-6" *ngIf="complianceSummary">
+            <div class="card panel-card">
+              <div class="card-header">
+                <h5 class="card-title">Compliance</h5>
+              </div>
+              <div class="card-body">
+                <div class="d-block">
+                  <ng-container *ngIf="responses.length > 0 && complianceSummary.chartData.length > 0; else noComplianceSummary">
+                    <canvas height="150" mdbChart [chartType]="'pie'" [datasets]="complianceSummary.chartData"
+                    [labels]="complianceSummary.chartLabels" [colors]="complianceSummary.chartColors"
+                    [options]="complianceSummary.chartOptions" [legend]="true">
+                    </canvas>
+                  </ng-container>
+                  <ng-template #noComplianceSummary>
+                    <div class="empty-state text-center">
+                      <img src="../../../../assets/img/empty-unknown.svg" alt="">
+                      <p class="mt-2">No compliance data currently available</p>
+                    </div>
+                  </ng-template>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row mb-4">
+          <div class="col-12 col-md-6" *ngIf="locationSummary">
+            <div class="card panel-card">
+              <div class="card-header">
+                <h5 class="card-title">Location</h5>
+              </div>
+              <div class="card-body">
+                <div class="d-block">
+                  <ng-container *ngIf="responses.length > 0 && locationSummary.chartData.length > 0; else noLocationSummary">
+                    <canvas height="150" mdbChart [chartType]="'bar'" [datasets]="locationSummary.chartData"
+                    [labels]="locationSummary.chartLabels" [colors]="locationSummary.chartColors"
+                    [options]="locationSummary.chartOptions" [legend]="true">
+                    </canvas>
+                  </ng-container>
+                  <ng-template #noLocationSummary>
+                    <div class="empty-state text-center">
+                      <img src="../../../../assets/img/empty-unknown.svg" alt="">
+                      <p class="mt-2">No location data currently available</p>
+                    </div>
+                  </ng-template>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-12 col-md-6" *ngIf="channelResponseSummary">
+            <div class="card panel-card">
+              <div class="card-header">
+                <h5 class="card-title">Channel</h5>
+              </div>
+              <div class="card-body">
+                <div class="d-block">
+                  <ng-container *ngIf="responses.length > 0 && channelResponseSummary.chartData.length > 0; else nochannelResponseSummary">
+                    <canvas height="150" mdbChart [chartType]="'bar'" [datasets]="channelResponseSummary.chartData"
+                    [labels]="channelResponseSummary.chartLabels" [colors]="channelResponseSummary.chartColors"
+                    [options]="channelResponseSummary.chartOptions" [legend]="true">
+                    </canvas>
+                  </ng-container>
+                  <ng-template #nochannelResponseSummary>
+                    <div class="empty-state text-center">
+                      <img src="../../../../assets/img/empty-unknown.svg" alt="">
+                      <p class="mt-2">No channel data currently available</p>
+                    </div>
+                  </ng-template>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+    </ng-container>
+
+    <ng-container *ngIf="state === 'responses'">
+      <div *ngIf="(mode === modes[0]) && (task && responses && query === '')" class="row form justify-content-center my-5">
+        <div class="col-12">
+          <div class="card panel-card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <ng-container *ngIf="!dateRange.endDate || !dateRange.startDate; else dateRangeTitle">
+                <h5 class="card-title">{{sentenceCase(sortOption)}} Entries</h5>
+                <button class="btn btn-outline-secondary btn-sm" *ngIf="sorted.length !== 0"
+                  (click)="exportToXLSX(sentenceCase(sortOption) + ' Entries', 'responseTable')">
+                  <i class="fa fa-download mr-1"></i>
+                  Export
+                </button>
+              </ng-container>
+              <ng-template #dateRangeTitle>
+                <h5 class="card-title">
+                  {{sentenceCase(sortOption)}} Entries ({{dateRange.startDate | customDate }} - {{dateRange.endDate | customDate }})
+                </h5>
+                <button class="btn btn-outline-secondary btn-sm" *ngIf="sorted.length !== 0"
+                  (click)="exportToXLSX(sentenceCase(sortOption) + ' Entries (' + convertDate(dateRange.startDate) + ' - ' + convertDate(dateRange.endDate) + ')', 'responseTable')">
+                  <i class="fa fa-download mr-1"></i>
+                  Export
+                </button>
+              </ng-template>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-12">
+                  <div class="table-responsive">
+                    <table class="table">
+                      <thead>
+                        <tr>
+                          <th>S/N</th>
+                          <th>Date</th>
+                          <th>Store</th>
+                          <th>Type</th>
+                          <th>Location</th>
+                          <ng-container *ngFor="let meta of task.metaData; let i = index">
+                            <th data-toggle="tooltip" data-placement="top" [title]="meta.value">KA {{i + 1}}</th>
+                          </ng-container>
+                          <th>Response</th>
+                          <th></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr *ngFor="let response of sorted | paginate: { id: 'responses', itemsPerPage: 5, currentPage: p }; let i = index">
+                          <td>{{i + 1}}</td>
+                          <td>{{response.created | customDate}}</td>
+                          <td>{{response.buyer['name']}}</td>
+                          <td>{{response.buyer['store']}}</td>
+                          <td>{{response.buyer['location']}}</td>
+                          <ng-container *ngIf="response.metaData.length > 0; else noMetaData">
+                            <ng-container *ngFor="let meta of task.metaData">
+                              <td>{{getResponseMetaFlag(0, response.metaData, meta)}}</td>
+                            </ng-container>
+                          </ng-container>
+                          <ng-template #noMetaData>
+                            <ng-container *ngFor="let meta of task.metaData;">
+                              <td>-</td>
+                            </ng-container>
+                          </ng-template>
+                          <td>
+                            <span [ngClass]="{'approved': response.status === 'approved', 'pending': response.status === 'pending', 'rejected': response.status === 'rejected'}" >
+                              {{sentenceCase(response.status)}}
+                            </span>
+                          </td>
+                          <td>
+                            <a href="javascript:void(0);" (click)="viewEntry(response)">View</a>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                    <pagination-controls *ngIf="sorted.length > 5" id="responses" class="pagination" responsive="true" (pageChange)="p = $event"></pagination-controls>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="(mode === modes[0]) && (task && responses && query !== '')" class="row justify-content-center my-4">
+        <div class="col-12">
+          <div class="card panel-card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <ng-container *ngIf="!dateRange.endDate || !dateRange.startDate; else dateRangeTitle">
+                <h5 class="card-title">{{sentenceCase(sortOption)}} Entries</h5>
+                <button class="btn btn-outline-secondary btn-sm" *ngIf="sorted.length !== 0"
+                  (click)="exportToXLSX(sentenceCase(sortOption) + ' Entries', 'responseTable')">
+                  <i class="fa fa-download mr-1"></i>
+                  Export
+                </button>
+              </ng-container>
+              <ng-template #dateRangeTitle>
+                <h5 class="card-title">
+                  {{sentenceCase(sortOption)}} Entries ({{dateRange.startDate | customDate }} - {{dateRange.endDate | customDate }})
+                </h5>
+                <button class="btn btn-outline-secondary btn-sm" *ngIf="queryArray.length !== 0"
+                  (click)="exportToXLSX(sentenceCase(sortOption) + ' Entries (' + convertDate(dateRange.startDate) + ' - ' + convertDate(dateRange.endDate) + ')', 'responseTable')">
+                  <i class="fa fa-download mr-1"></i>
+                  Export
+                </button>
+              </ng-template>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-12">
+                  <div class="table-responsive">
+                    <table class="table">
+                      <thead>
+                        <tr>
+                          <th>S/N</th>
+                          <th>Date</th>
+                          <th>Store</th>
+                          <th>Type</th>
+                          <th>Location</th>
+                          <ng-container *ngFor="let meta of task.metaData; let i = index">
+                            <th data-toggle="tooltip" data-placement="top" [title]="meta.value">KA {{i + 1}}</th>
+                          </ng-container>
+                          <th>Response</th>
+                          <th></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr *ngFor="let response of queryArray | paginate: { id: 'queries', itemsPerPage: 5, currentPage: p1 }; let i = index">
+                          <td>{{i + 1}}</td>
+                          <td>{{response.created | customDate}}</td>
+                          <td>{{response.buyer['name']}}</td>
+                          <td>{{response.buyer['store']}}</td>
+                          <td>{{response.buyer['location']}}</td>
+                          <ng-container *ngIf="response.metaData.length > 0; else noMetaData">
+                            <ng-container *ngFor="let meta of task.metaData">
+                              <td>{{getResponseMetaFlag(0, response.metaData, meta)}}</td>
+                            </ng-container>
+                          </ng-container>
+                          <ng-template #noMetaData>
+                            <ng-container *ngFor="let meta of task.metaData;">
+                              <td>-</td>
+                            </ng-container>
+                          </ng-template>
+                          <td>
+                            <span [ngClass]="{'approved': response.status === 'approved', 'pending': response.status === 'pending', 'rejected': response.status === 'rejected'}" >
+                              {{sentenceCase(response.status)}}
+                            </span>
+                          </td>
+                          <td>
+                            <a href="javascript:void(0);" (click)="viewEntry(response)" class="font-weight-bold">View</a>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                    <pagination-controls *ngIf="queryArray.length > 5" id="queries" class="pagination" responsive="true" (pageChange)="p1 = $event"></pagination-controls>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- Graphs -->
+    <ng-container *ngIf="state === 'report'">
+      <ng-container *ngIf="mode === modes[0] && (task && responses)">
+        <div class="row form justify-content-center mb-4">
+          <div *ngIf="channelSummary" class="col-12">
+            <div class="card panel-card">
+              <div class="card-header d-flex justify-content-between align-items-center">
+                <ng-container *ngIf="!dateRange.endDate || !dateRange.startDate; else dateRangeTitle">
+                  <h5 class="card-title">Channel Summary</h5>
+                  <button class="btn btn-outline-secondary btn-sm" *ngIf="channelSummary.length !== 0"
+                    (click)="exportToXLSX('Channel Summary', 'channelSummaryTable')">
+                    <i class="fa fa-download mr-1"></i>
+                    Export
+                  </button>
+                </ng-container>
+                <ng-template #dateRangeTitle>
+                  <h5 class="card-title">
+                    Channel Summary ({{dateRange.startDate | customDate }} - {{dateRange.endDate | customDate }})
+                  </h5>
+                  <button class="btn btn-outline-secondary btn-sm" *ngIf="sorted.length !== 0"
+                    (click)="exportToXLSX('Channel Summary (' + convertDate(dateRange.startDate) + ' - ' + convertDate(dateRange.endDate) + ')', 'channelSummaryTable')">
+                    <i class="fa fa-download mr-1"></i>
+                    Export
+                  </button>
+                </ng-template>
+              </div>
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-12">
+                    <div class="table-responsive">
+                      <table class="table">
+                        <thead>
+                          <tr>
+                            <th>S/N</th>
+                            <th>Channel (Store Type)</th>
+                            <th>Responded</th>
+                            <ng-container *ngFor="let meta of task.metaData; let i = index">
+                              <th data-toggle="tooltip" data-placement="top" [title]="meta.value">KA {{i + 1}}</th>
+                            </ng-container>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr *ngFor="let summary of channelSummary | paginate: { id: 'summary', itemsPerPage: 5, currentPage: p2}; let i = index">
+                            <td>{{i + 1}}</td>
+                            <td>{{summary.store}}</td>
+                            <td>{{summary.responses}}</td>
+                            <ng-container *ngFor="let meta of task.metaData">
+                              <td>{{getSummaryMetaResponseCount(summary, meta)}}</td>
+                            </ng-container>
+                          </tr>
+                        </tbody>
+                      </table>
+                      <pagination-controls *ngIf="channelSummary.length > 5" id="summary" class="pagination" responsive="true" (pageChange)="p2 = $event"></pagination-controls>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row mb-4">
+          <div *ngIf="keyAttributeTrends" class="col-12 col-md-6">
+            <div class="card panel-card">
+              <div class="card-header">
+                <h5 class="card-title">Key Attribute Trends</h5>
+              </div>
+              <div class="card-body">
+                <div class="d-block">
+                  <ng-container *ngIf="responses.length > 0 && keyAttributeTrends.chartData.length > 0; else noKeyAttributeTrends">
+                    <canvas height="150" mdbChart [chartType]="'line'" [datasets]="keyAttributeTrends.chartData"
+                    [labels]="keyAttributeTrends.chartLabels" [colors]="keyAttributeTrends.chartColors"
+                    [options]="keyAttributeTrends.chartOptions" [legend]="true">
+                    </canvas>
+                  </ng-container>
+                  <ng-template #noKeyAttributeTrends>
+                    <div class="empty-state text-center">
+                      <img src="../../../../assets/img/empty-unknown.svg" alt="">
+                      <p class="mt-2">No key attributes data currently available</p>
+                    </div>
+                  </ng-template>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div *ngIf="responseTrends" class="col-12 col-md-6">
+            <div class="card panel-card">
+              <div class="card-header">
+                <h5 class="card-title">Response Trends</h5>
+              </div>
+              <div class="card-body">
+                <div class="d-block">
+                  <ng-container *ngIf="responses.length > 0 && responseTrends.chartData.length > 0; else noresponseTrends">
+                    <canvas height="150" mdbChart [chartType]="'line'" [datasets]="responseTrends.chartData"
+                    [labels]="responseTrends.chartLabels" [colors]="responseTrends.chartColors"
+                    [options]="responseTrends.chartOptions" [legend]="true">
+                    </canvas>
+                  </ng-container>
+                  <ng-template #noresponseTrends>
+                    <div class="empty-state text-center">
+                      <img src="../../../../assets/img/empty-unknown.svg" alt="">
+                      <p class="mt-2">No response data currently available</p>
+                    </div>
+                  </ng-template>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row mb-4">
+          <div *ngIf="channelAcceptance" class="col-12 col-md-6">
+            <div class="card panel-card">
+              <div class="card-header">
+                <h5 class="card-title">Acceptance by Channel</h5>
+              </div>
+              <div class="card-body">
+                <div class="d-block">
+                  <ng-container *ngIf="responses.length > 0 && channelAcceptance.chartData.length > 0; else noChannelAcceptance">
+                    <canvas height="150" mdbChart [chartType]="'line'" [datasets]="channelAcceptance.chartData"
+                    [labels]="channelAcceptance.chartLabels" [colors]="channelAcceptance.chartColors"
+                    [options]="channelAcceptance.chartOptions" [legend]="true">
+                    </canvas>
+                  </ng-container>
+                  <ng-template #noChannelAcceptance>
+                    <div class="empty-state text-center">
+                      <img src="../../../../assets/img/empty-unknown.svg" alt="">
+                      <p class="mt-2">No channel data currently available</p>
+                    </div>
+                  </ng-template>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div *ngIf="locationAcceptance" class="col-12 col-md-6">
+            <div class="card panel-card">
+              <div class="card-header">
+                <h5 class="card-title">Acceptance by Location</h5>
+              </div>
+              <div class="card-body">
+                <div class="d-block">
+                  <ng-container *ngIf="responses.length > 0 && locationAcceptance.chartData.length > 0; else nolocationAcceptance">
+                    <canvas height="150" mdbChart [chartType]="'line'" [datasets]="locationAcceptance.chartData"
+                    [labels]="locationAcceptance.chartLabels" [colors]="locationAcceptance.chartColors"
+                    [options]="locationAcceptance.chartOptions" [legend]="true">
+                    </canvas>
+                  </ng-container>
+                  <ng-template #nolocationAcceptance>
+                    <div class="empty-state text-center">
+                      <img src="../../../../assets/img/empty-unknown.svg" alt="">
+                      <p class="mt-2">No location data currently available</p>
+                    </div>
+                  </ng-template>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+    </ng-container>
+
+    <ng-container *ngIf="state === 'responses'">
+      <div *ngIf="mode === modes[1]" class="sub-header mt-3">
+        <div>
+          <button (click)="closeView()" class="btn btn-sm btn-light">
+            &larr; Back to Entries
+          </button>
+        </div>
+      </div>
+
+      <div *ngIf="mode === modes[1]" class="row form justify-content-center my-5">
+        <div class="col-12 col-md-6">
+          <div class="card panel-card">
+            <div class="card-header">
+              <h5 class="card-title">{{ task.title  }}</h5>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-12 col-md-6 text-center">
+                  <img *ngIf="task" class="img" [src]="task.image" ngxViewer>
+                  <img *ngIf="!task" class="img" src="https://via.placeholder.com/468x200/F6F7FC/?text=Target+Image" ngxViewer>
+                </div>
+                <div *ngIf="task.metaData" class="col-12 col-md-6">
+                  <div *ngFor="let meta of task.metaData; let i = index" class="task-meta-data">
+                    <span class="value" style="font-weight: 700">Q{{i + 1}}. </span> <span class="value">{{meta.value}}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-md-6">
+          <div class="card panel-card">
+            <div class="card-header">
+              <h5 class="card-title">{{focusedEntry.title}}</h5>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-12 col-md-6">
+                  <img *ngIf="focusedEntry.image" class="img" [src]="focusedEntry.image" ngxViewer>
+                  <img *ngIf="!focusedEntry.image" class="img" src="https://via.placeholder.com/468x200/F6F7FC/?text=Entry+Image" ngxViewer>
+                </div>
+                <div *ngIf="task.metaData && focusedEntry.status === 'pending'; else notPending" class="col-12 col-md-6">
+                  <div *ngFor="let meta of metaData; let i = index" class="form-group">
+                    <label for="tag">
+                      <span class="value" style="font-weight: 700">Q{{i + 1}}. </span> <span class="value">{{meta.value}}</span>
+                    </label>
+                    <div class="row">
+                      <div class="col-12 col-md-6">
+                        <div class="row">
+                          <div class="col-8 col-md-4">
+                            <input [id]="meta._id" [name]="meta._id" [(ngModel)]="meta.answer" [value]="true" [ngModelOptions]="{standalone: true}" type="radio"/>
+                          </div>
+                          <div class="col-8 col-md-4" style="margin-top: -2px; margin-left: -1.2vw">
+                            <label>Yes</label>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-12 col-md-6">
+                        <div class="row">
+                          <div class="col-8 col-md-4">
+                            <input [id]="meta._id" [name]="meta._id" [(ngModel)]="meta.answer" [value]="false" [ngModelOptions]="{standalone: true}" type="radio"/>
+                          </div>
+                          <div class="col-8 col-md-4" style="margin-top: -2px; margin-left: -1.2vw">
+                            <label>No</label>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <ng-template #notPending>
+                  <div class="col-12 col-md-6">
+                    <div *ngFor="let meta of task.metaData; let i = index" class="task-meta-data">
+                      <span class="value" style="font-weight: 700">Q{{i + 1}}. </span> <span class="value">{{meta.value}}</span><br>
+                      <span class="tag">{{getResponseMetaFlag(1, focusedEntry.metaData, meta)}}</span>
+                    </div>
+                  </div>
+                </ng-template>
+              </div>
+            </div>
+            <div *ngIf="focusedEntry.status === 'pending'" class="card-footer">
+              <button [disabled]="disableApprove()" (click)="passVerdict(focusedEntry, 'approved', 'Approve', focusedEntry.buyer_id)"
+                type="submit" class="btn btn-primary">
+                Approve
+              </button>
+              <button [disabled]="disableReject()" class="btn btn-sm btn-light float-right"
+                (click)="passVerdict(focusedEntry, 'rejected', 'Reject', focusedEntry.buyer_id)">
+                Reject
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+  </div>
+</div>

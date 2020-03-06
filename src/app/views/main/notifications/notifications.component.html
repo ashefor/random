@@ -1,0 +1,130 @@
+<div class="content-wrap">
+    <app-main-nav [title]="_title" [mode]="modeWatch | async" [componentInstance]="this"></app-main-nav>
+    
+    <div class="container">
+        <div class="row form justify-content-center my-5">
+            <div class="col-12 col-md-7">
+                <form class="card panel-card" [formGroup]="form">
+                    <div class="card-header">
+                        <h5 class="card-title">Send Notification</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-12 col-md-6"
+                                [ngClass]="{'col-md-12': (type.value === notificationTypes[1].value || type.value === notificationTypes[2].value)}">
+                                <div class="form-group">
+                                    <label for="title">Title <span class="text-danger">*</span></label>
+                                    <input class="form-control" formControlName="title" />
+                                    <small class="form-error" *ngIf="title.dirty && title.hasError('required')">Provide a title</small>
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <div class="form-group">
+                                    <label for="status">Notification type <span class="text-danger">*</span></label>
+                                    <select class="form-control" formControlName="type" (change)="watchNotificationType($event)">
+                                        <option [value]="null" selected>-- Select type --</option>
+                                        <option *ngFor="let type of notificationTypes" [value]="type.value">
+                                            {{type.title}}
+                                        </option>
+                                    </select>
+                                    <small class="form-error" *ngIf="(type.touched || type.dirty) && type.invalid">
+                                        Select a notification type
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-6" *ngIf="(type.value === notificationTypes[1].value || type.value === notificationTypes[2].value)">
+                                <div class="form-group">
+                                    <label for="status">Order type <span class="text-danger">*</span></label>
+                                    <select class="form-control" formControlName="order_tag">
+                                        <option [value]="null" selected>-- Select type --</option>
+                                        <option *ngFor="let type of orderTypes" [value]="type.value">
+                                            {{type.title}}
+                                        </option>
+                                    </select>
+                                    <small class="form-error"
+                                        *ngIf="(type.value === notificationTypes[1].value || type.value === notificationTypes[2].value) &&
+                                                order_tag.dirty && order_tag.invalid">
+                                        Select an order type
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-12">
+                                <div class="form-group">
+                                    <label for="description">Message <span class="text-danger">*</span></label>
+                                    <textarea rows="2" class="form-control" formControlName="message"></textarea>
+                                    <small class="form-error" *ngIf="message.dirty && message.hasError('required')">Provide a message</small>
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <div class="form-group">
+                                    <label for="description">Send to all</label>
+                                    <input type="checkbox" formControlName="send_to_all" (change)="watchSendToAll($event)" />
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <div class="form-group">
+                                    <label for="description">Send sms too</label>
+                                    <input type="checkbox" formControlName="send_sms_too" />
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-6"
+                                *ngIf="send_to_all.value === false"
+                                [ngClass]="{'col-md-12': send_to_all.value === false}">
+                                <div class="form-group">
+                                    <label for="description">Recipients<span class="text-danger"></span></label>
+                                    <textarea rows="2" class="form-control" formControlName="recipients"></textarea>
+                                    <small class="form-error"
+                                        *ngIf="send_to_all.value === false && recipients.dirty && recipients.invalid">
+                                        Provide at least one recipient
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-6"
+                                *ngIf="send_to_all.value === true"
+                                [ngClass]="{'col-md-12': send_to_all.value === true}">
+                                <div class="form-group">
+                                    <label for="description">Excluded numbers<span class="text-danger"></span></label>
+                                    <textarea rows="2" class="form-control" formControlName="excluded"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <button id="previewBtn" (click)="previewNotification()" [disabled]="form.invalid" class="btn btn-secondary">
+                            Preview
+                        </button>
+                        <button id="submitBtn" (click)="sendNotification()" [disabled]="form.invalid" class="btn btn-primary">
+                            Send
+                        </button>
+                    </div>
+                </form>
+            </div>
+            <div class="col-12 col-md-5" *ngIf="preview">
+                <div class="card panel-card">
+                    <div class="card-header">
+                        <h5 class="card-title">Notification Preview</h5>
+                        <h6>{{preview.length}} recipients</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row" *ngFor="let notification of preview; let i = index">
+                            <div class="col-12">
+                                <label class="pull-right">{{ notification.phone }}</label>
+                            </div>
+                            <div class="col-12">
+                                <h5 class="mftr-desc">{{ notification.title }}</h5>
+                            </div>
+                            <div class="col-12" [style.borderBottom]="i !== (preview.length - 1) ? '1px solid whitesmoke' : null"
+                                [style.marginBottom]="i !== (preview.length - 1) ? '16px' : null">
+                                <p class="mftr-meta">{{ notification.body }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer" style="margin-top: 0">
+                        <button type="submit" class="btn btn-primary" style="visibility: hidden"></button>
+                        <button type="submit" class="btn btn-danger" (click)="closePreview()" >Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,1037 @@
+<div class="content-wrap">
+  <!--Top dashboard nav from /components/main/main-nav-->
+  <!--the title prop is a string set in the .ts file of this component. An example is "Manufacturer". This will show on the top dashboard nav-->
+  <app-main-nav [title]="title"></app-main-nav>
+
+  <!--Main content here-->
+  <div class="container">
+    <div class="sub-header mt-3">
+      <div>
+        Sort by
+        <select id="rangeSelect" (change)="sort($event)" class="form-control form-control-sm">
+            <option value="today" selected>Today</option>
+            <option *ngFor="let range of ranges" [value]="[range.value]">{{range.name}}</option>
+            <option value="_custom">Custom</option>
+        </select>
+      </div>
+
+      <div class="d-flex justify-content-end">
+        <div class="text-muted">
+          <div class="input-group">
+            <input placement="bottom" placeholder="Set Start Date" type="text" class="form-control form-control-sm" bsDatepicker (bsValueChange)="setStartDate($event)" [bsConfig]="bsConfig" [maxDate]="maxDate">
+            <input placement="bottom" placeholder="Set End Date" type="text" class="form-control form-control-sm" bsDatepicker (bsValueChange)="setEndDateAndFetchStats($event)" [bsConfig]="bsConfig" [disabled]="!dateRange.startDate" [maxDate]="maxDate">
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div *ngIf="currentRange === 'today'" class="row justify-content-center mt-5">
+      <div *ngIf="currentRange === 'today' && !dayStats" class="col-12 col-md-4">
+        <div class="content-loader">
+          <span class="__1"></span>
+          <span class="__2"></span>
+          <span class="__3"></span>
+          <span class="__4"></span>
+        </div>
+      </div>
+      <div *ngIf="currentRange === 'today' && dayStats" class="col-12 col-md-4">
+        <div class="card h-100">
+          <div class="card-header">
+            <h5 class="card-title">Overview</h5>
+          </div>
+          <div class="card-body">
+            <div class="row mt-3"></div>
+            <div class="row">
+              <div class="col-12 col-md-2">
+                <h5 class="card-title">{{dayStats.orderStats.total}}</h5>
+              </div>
+              <div class="col-12 col-md-10">
+                Total Orders
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-12 col-md-2">
+                <h5 class="card-title">{{dayStats.orderStats.fulfilled}}</h5>
+              </div>
+              <div class="col-12 col-md-10">
+                Orders fulfilled
+              </div>
+            </div>
+            <!-- <div class="row">
+              <div class="col-12 col-md-2">
+                <h5 class="card-title">{{dayStats.orderStats.cash}}</h5>
+              </div>
+              <div class="col-12 col-md-10">
+                Cash orders
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-12 col-md-2">
+                <h5 class="card-title">{{dayStats.orderStats.loyalty}}</h5>
+              </div>
+              <div class="col-12 col-md-10">
+                Loyalty orders
+              </div>
+            </div> -->
+            <div class="row">
+              <div class="col-12 col-md-2">
+                <h5 class="card-title">{{dayStats.orderStats.cancelled}}</h5>
+              </div>
+              <div class="col-12 col-md-10">
+                Orders cancelled
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-12 col-md-2">
+                <h5 class="card-title">{{dayStats.orderStats.cancelled_seller}}</h5>
+              </div>
+              <div class="col-12 col-md-10">
+                Orders cancelled (By sales reps)
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-12 col-md-2">
+                <h5 class="card-title">{{dayStats.orderStats.cancelled_buyer}}</h5>
+              </div>
+              <div class="col-12 col-md-10">
+                Orders cancelled (By buyers)
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="currentRange === 'today' && !dayStats" class="col-12 col-md-8">
+        <div class="content-loader">
+          <span class="__1"></span>
+          <span class="__2"></span>
+          <span class="__3"></span>
+          <span class="__4"></span>
+        </div>
+      </div>
+      <div *ngIf="currentRange === 'today' && dayStats" class="col-12 col-md-8">
+        <div class="card panel-card">
+          <div class="card-header">
+            <h5 class="card-title">Leaderboard</h5>
+            <div class="pull-right">
+              <select (change)="filter($event, dayStats.salesReps)" class="form-control form-control-sm">
+                  <option value="fulfilled" selected>Fulfilled</option>
+                  <option *ngFor="let criterion of criteria" [value]="[criterion.value]">{{criterion.name}}</option>
+              </select>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-12">
+                <div class="table-responsive">
+                  <table class="table table-hover">
+                    <thead>
+                      <tr>
+                        <th>S/N</th>
+                        <th>Name</th>
+                        <th>Fulfilled</th>
+                        <th>Cancelled</th>
+                        <th>Rating</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let rep of dayStats.salesReps; let i=index">
+                        <td>{{i + 1}}</td>
+                        <td>{{rep.name}}
+                          <span *ngIf="i === 0" class="badge badge-warning text-white">1<sup>st</sup></span>
+                          <span *ngIf="i === 1" class="badge badge-primary text-white">2<sup>nd</sup></span>
+                          <span *ngIf="i === 2" class="badge badge-dark">3<sup>rd</sup></span>
+                        </td>
+                        <td>{{rep.completed}}</td>
+                        <td>{{rep.cancelled}}</td>
+                        <td>{{rep.ratingPretty}}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div *ngIf="mode === modes[0] && currentRange === 'today'" class="row justify-content-center mt-5">
+      <div *ngIf="currentRange === 'today' && !dayStats" class="col-12">
+        <div class="content-loader">
+          <span class="__1"></span>
+          <span class="__2"></span>
+          <span class="__3"></span>
+          <span class="__4"></span>
+        </div>
+      </div>
+      <div *ngIf="currentRange === 'today' && dayStats" class="col-12">
+        <div class="card panel-card">
+          <div class="card-header">
+            <h5 class="card-title">Orders
+            </h5>
+            <div class="pull-right">
+              <select (change)="filterOrders($event, dayStats.orders, 'today')" class="form-control form-control-sm mr-2">
+                <option value="completed" selected>Completed</option>
+                <option value="cancelled">Cancelled</option>
+                <option value="pending">Pending</option>
+              </select>
+              <button class="btn btn-sm"  (click)="refresh('today')">Refresh</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-12">
+                <div class="table-responsive">
+                  <table class="table table-hover">
+                    <thead>
+                      <tr>
+                        <th>S/N</th>
+                        <th>Ref</th>
+                        <th>Date</th>
+                        <th>Buyer</th>
+                        <th>Handler</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Type</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let order of filteredDayOrders | paginate: { id: 'dayStats', itemsPerPage: 10, currentPage: p}; let i=index">
+                        <td>{{i + 1}}</td>
+                        <td>#{{order.ref}}</td>
+                        <td>{{order.modified | happroxy: 'time' }}</td>
+                        <td>{{order.buyer}}</td>
+                        <td>{{order.handler}}</td>
+                        <td>{{order.amount | customCurrency}}</td>
+                        <td>{{sentenceCase(order.tag)}}</td>
+                        <td>
+                          <a (click)="viewDetail(order._id)" href="javascript:void(0);">Details</a>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <div>
+                    <pagination-controls id="dayStats" *ngIf="filteredDayOrders.length > 10" class="pagination" responsive="true" (pageChange)="p = $event"></pagination-controls>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div *ngIf="currentRange === 'week'" class="row justify-content-center mt-5">
+      <div *ngIf="currentRange === 'week' && !weekStats" class="col-12 col-md-4">
+        <div class="content-loader">
+          <span class="__1"></span>
+          <span class="__2"></span>
+          <span class="__3"></span>
+          <span class="__4"></span>
+        </div>
+      </div>
+      <div *ngIf="currentRange === 'week' && weekStats" class="col-12 col-md-4">
+        <div class="card h-100">
+          <div class="card-header">
+            <h5 class="card-title">Overview</h5>
+          </div>
+          <div class="card-body">
+            <div class="row mt-3"></div>
+            <div class="row">
+              <div class="col-12 col-md-2">
+                <h5 class="card-title">{{weekStats.orderStats.total}}</h5>
+              </div>
+              <div class="col-12 col-md-10">
+                Total Orders
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-12 col-md-2">
+                <h5 class="card-title">{{weekStats.orderStats.fulfilled}}</h5>
+              </div>
+              <div class="col-12 col-md-10">
+                Orders fulfilled
+              </div>
+            </div>
+            <!-- <div class="row">
+              <div class="col-12 col-md-2">
+                <h5 class="card-title">{{weekStats.orderStats.cash}}</h5>
+              </div>
+              <div class="col-12 col-md-10">
+                Cash orders
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-12 col-md-2">
+                <h5 class="card-title">{{weekStats.orderStats.loyalty}}</h5>
+              </div>
+              <div class="col-12 col-md-10">
+                Loyalty orders
+              </div>
+            </div> -->
+            <div class="row">
+              <div class="col-12 col-md-2">
+                <h5 class="card-title">{{weekStats.orderStats.cancelled}}</h5>
+              </div>
+              <div class="col-12 col-md-10">
+                Orders cancelled
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-12 col-md-2">
+                <h5 class="card-title">{{weekStats.orderStats.cancelled_seller}}</h5>
+              </div>
+              <div class="col-12 col-md-10">
+                Orders cancelled (By sales reps)
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-12 col-md-2">
+                <h5 class="card-title">{{weekStats.orderStats.cancelled_buyer}}</h5>
+              </div>
+              <div class="col-12 col-md-10">
+                Orders cancelled (By buyers)
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="currentRange === 'week' && !weekStats" class="col-12 col-md-8">
+        <div class="content-loader">
+          <span class="__1"></span>
+          <span class="__2"></span>
+          <span class="__3"></span>
+          <span class="__4"></span>
+        </div>
+      </div>
+      <div *ngIf="currentRange === 'week' && weekStats" class="col-12 col-md-8">
+        <div class="card panel-card">
+          <div class="card-header">
+            <h5 class="card-title">Leaderboard</h5>
+            <div class="pull-right">
+              <select (change)="filter($event, weekStats.salesReps)" class="form-control form-control-sm">
+                  <option value="fulfilled" selected>Fulfilled</option>
+                  <option *ngFor="let criterion of criteria" [value]="[criterion.value]">{{criterion.name}}</option>
+              </select>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-12">
+                <div class="table-responsive">
+                  <table class="table table-hover">
+                    <thead>
+                      <tr>
+                        <th>S/N</th>
+                        <th>Name</th>
+                        <th>Fulfilled</th>
+                        <th>Cancelled</th>
+                        <th>Rating</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let rep of weekStats.salesReps; let i=index">
+                        <td>{{i + 1}}</td>
+                        <td>{{rep.name}}
+                          <span *ngIf="i === 0" class="badge badge-warning text-white">1<sup>st</sup></span>
+                          <span *ngIf="i === 1" class="badge badge-primary text-white">2<sup>nd</sup></span>
+                          <span *ngIf="i === 2" class="badge badge-dark">3<sup>rd</sup></span>
+                        </td>
+                        <td>{{rep.completed}}</td>
+                        <td>{{rep.cancelled}}</td>
+                        <td>{{rep.ratingPretty}}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div *ngIf="mode === modes[0] && currentRange === 'week'" class="row justify-content-center mt-5">
+      <div *ngIf="currentRange === 'week' && !weekStats" class="col-12">
+        <div class="content-loader">
+          <span class="__1"></span>
+          <span class="__2"></span>
+          <span class="__3"></span>
+          <span class="__4"></span>
+        </div>
+      </div>
+      <div *ngIf="currentRange === 'week' && weekStats" class="col-12">
+        <div class="card panel-card">
+          <div class="card-header">
+            <h5 class="card-title">Orders</h5>
+            <div class="pull-right">
+              <select (change)="filterOrders($event, weekStats.orders, 'week')" class="form-control form-control-sm mr-2">
+                <option value="completed" selected>Completed</option>
+                <option value="cancelled">Cancelled</option>
+                <option value="pending">Pending</option>
+              </select>
+              <button class="btn btn-sm" (click)="refresh('week')">Refresh</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-12">
+                <div class="table-responsive">
+                  <table class="table table-hover">
+                    <thead>
+                      <tr>
+                        <th>S/N</th>
+                        <th>Ref</th>
+                        <th>Date</th>
+                        <th>Buyer</th>
+                        <th>Handler</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Type</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let order of filteredWeekOrders | paginate: { id: 'weekStats', itemsPerPage: 10, currentPage: p1}; let i=index">
+                        <td>{{i + 1}}</td>
+                        <td>#{{order.ref}}</td>
+                        <td>{{order.modified | happroxy: 'time' }}</td>
+                        <td>{{order.buyer}}</td>
+                        <td>{{order.handler}}</td>
+                        <td>{{order.amount | customCurrency}}</td>
+                        <td>{{sentenceCase(order.tag)}}</td>
+                        <td>
+                          <a (click)="viewDetail(order._id)" href="javascript:void(0);">Details</a>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <div>
+                    <pagination-controls id="weekStats" *ngIf="filteredWeekOrders.length > 10" class="pagination" responsive="true" (pageChange)="p1 = $event"></pagination-controls>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div *ngIf="currentRange === 'month'" class="row justify-content-center mt-5">
+      <div *ngIf="currentRange === 'month' && !monthStats" class="col-12 col-md-4">
+        <div class="content-loader">
+          <span class="__1"></span>
+          <span class="__2"></span>
+          <span class="__3"></span>
+          <span class="__4"></span>
+        </div>
+      </div>
+      <div *ngIf="currentRange === 'month' && monthStats" class="col-12 col-md-4">
+        <div class="card h-100">
+          <div class="card-header">
+            <h5 class="card-title">Overview</h5>
+          </div>
+          <div class="card-body">
+            <div class="row mt-3"></div>
+            <div class="row">
+              <div class="col-12 col-md-2">
+                <h5 class="card-title">{{monthStats.orderStats.total}}</h5>
+              </div>
+              <div class="col-12 col-md-10">
+                Total Orders
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-12 col-md-2">
+                <h5 class="card-title">{{monthStats.orderStats.fulfilled}}</h5>
+              </div>
+              <div class="col-12 col-md-10">
+                Orders fulfilled
+              </div>
+            </div>
+            <!-- <div class="row">
+              <div class="col-12 col-md-2">
+                <h5 class="card-title">{{monthStats.orderStats.cash}}</h5>
+              </div>
+              <div class="col-12 col-md-10">
+                Cash orders
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-12 col-md-2">
+                <h5 class="card-title">{{monthStats.orderStats.loyalty}}</h5>
+              </div>
+              <div class="col-12 col-md-10">
+                Loyalty orders
+              </div>
+            </div> -->
+            <div class="row">
+              <div class="col-12 col-md-2">
+                <h5 class="card-title">{{monthStats.orderStats.cancelled}}</h5>
+              </div>
+              <div class="col-12 col-md-10">
+                Orders cancelled
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-12 col-md-2">
+                <h5 class="card-title">{{monthStats.orderStats.cancelled_seller}}</h5>
+              </div>
+              <div class="col-12 col-md-10">
+                Orders cancelled (By sales reps)
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-12 col-md-2">
+                <h5 class="card-title">{{monthStats.orderStats.cancelled_buyer}}</h5>
+              </div>
+              <div class="col-12 col-md-10">
+                Orders cancelled (By buyers)
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="currentRange === 'month' && !monthStats" class="col-12 col-md-8">
+        <div class="content-loader">
+          <span class="__1"></span>
+          <span class="__2"></span>
+          <span class="__3"></span>
+          <span class="__4"></span>
+        </div>
+      </div>
+      <div *ngIf="currentRange === 'month' && monthStats" class="col-12 col-md-8">
+        <div class="card panel-card">
+          <div class="card-header">
+            <h5 class="card-title">Leaderboard</h5>
+            <div class="pull-right">
+              <select (change)="filter($event, monthStats.salesReps)" class="form-control form-control-sm">
+                  <option value="fulfilled" selected>Fulfilled</option>
+                  <option *ngFor="let criterion of criteria" [value]="[criterion.value]">{{criterion.name}}</option>
+              </select>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-12">
+                <div class="table-responsive">
+                  <table class="table table-hover">
+                    <thead>
+                      <tr>
+                        <th>S/N</th>
+                        <th>Name</th>
+                        <th>Fulfilled</th>
+                        <th>Cancelled</th>
+                        <th>Rating</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let rep of monthStats.salesReps; let i=index">
+                        <td>{{i + 1}}</td>
+                        <td>{{rep.name}}
+                          <span *ngIf="i === 0" class="badge badge-warning text-white">1<sup>st</sup></span>
+                          <span *ngIf="i === 1" class="badge badge-primary text-white">2<sup>nd</sup></span>
+                          <span *ngIf="i === 2" class="badge badge-dark">3<sup>rd</sup></span>
+                        </td>
+                        <td>{{rep.completed}}</td>
+                        <td>{{rep.cancelled}}</td>
+                        <td>{{rep.ratingPretty}}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div *ngIf="mode === modes[0] && currentRange === 'month'" class="row justify-content-center mt-5">
+      <div *ngIf="currentRange === 'month' && !monthStats" class="col-12">
+        <div class="content-loader">
+          <span class="__1"></span>
+          <span class="__2"></span>
+          <span class="__3"></span>
+          <span class="__4"></span>
+        </div>
+      </div>
+      <div *ngIf="currentRange === 'month' && monthStats" class="col-12">
+        <div class="card panel-card">
+          <div class="card-header">
+            <h5 class="card-title">Orders</h5>
+            <div class="pull-right">
+              <select (change)="filterOrders($event, monthStats.orders, 'month')" class="form-control form-control-sm mr-2">
+                <option value="completed" selected>Completed</option>
+                <option value="cancelled">Cancelled</option>
+                <option value="pending">Pending</option>
+              </select>
+              <button class="btn btn-sm" (click)="refresh('month')">Refresh</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-12">
+                <div class="table-responsive">
+                  <table class="table table-hover">
+                    <thead>
+                      <tr>
+                        <th>S/N</th>
+                        <th>Ref</th>
+                        <th>Date</th>
+                        <th>Buyer</th>
+                        <th>Handler</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Type</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let order of filteredMonthOrders | paginate: { id: 'monthStats', itemsPerPage: 10, currentPage: p2}; let i=index">
+                        <td>{{i + 1}}</td>
+                        <td>#{{order.ref}}</td>
+                        <td>{{order.modified | happroxy: 'time' }}</td>
+                        <td>{{order.buyer}}</td>
+                        <td>{{order.handler}}</td>
+                        <td>{{order.amount | customCurrency}}</td>
+                        <td>{{sentenceCase(order.tag)}}</td>
+                        <td>
+                          <a (click)="viewDetail(order._id)" href="javascript:void(0);">Details</a>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <div>
+                    <pagination-controls id="monthStats" *ngIf="filteredMonthOrders.length > 10" class="pagination" responsive="true" (pageChange)="p2 = $event"></pagination-controls>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div *ngIf="currentRange === 'year'" class="row justify-content-center mt-5">
+      <div *ngIf="currentRange === 'year' && !yearStats" class="col-12 col-md-4">
+        <div class="content-loader">
+          <span class="__1"></span>
+          <span class="__2"></span>
+          <span class="__3"></span>
+          <span class="__4"></span>
+        </div>
+      </div>
+      <div *ngIf="currentRange === 'year' && yearStats" class="col-12 col-md-4">
+        <div class="card h-100">
+          <div class="card-header">
+            <h5 class="card-title">Overview</h5>
+          </div>
+          <div class="card-body">
+            <div class="row mt-3"></div>
+            <div class="row">
+              <div class="col-12 col-md-2">
+                <h5 class="card-title">{{yearStats.orderStats.total}}</h5>
+              </div>
+              <div class="col-12 col-md-10">
+                Total Orders
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-12 col-md-2">
+                <h5 class="card-title">{{yearStats.orderStats.fulfilled}}</h5>
+              </div>
+              <div class="col-12 col-md-10">
+                Orders fulfilled
+              </div>
+            </div>
+            <!-- <div class="row">
+              <div class="col-12 col-md-2">
+                <h5 class="card-title">{{yearStats.orderStats.cash}}</h5>
+              </div>
+              <div class="col-12 col-md-10">
+                Cash orders
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-12 col-md-2">
+                <h5 class="card-title">{{yearStats.orderStats.loyalty}}</h5>
+              </div>
+              <div class="col-12 col-md-10">
+                Loyalty orders
+              </div>
+            </div> -->
+            <div class="row">
+              <div class="col-12 col-md-2">
+                <h5 class="card-title">{{yearStats.orderStats.cancelled}}</h5>
+              </div>
+              <div class="col-12 col-md-10">
+                Orders cancelled
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-12 col-md-2">
+                <h5 class="card-title">{{yearStats.orderStats.cancelled_seller}}</h5>
+              </div>
+              <div class="col-12 col-md-10">
+                Orders cancelled (By sales reps)
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-12 col-md-2">
+                <h5 class="card-title">{{yearStats.orderStats.cancelled_buyer}}</h5>
+              </div>
+              <div class="col-12 col-md-10">
+                Orders cancelled (By buyers)
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="currentRange === 'year' && !yearStats" class="col-12 col-md-8">
+        <div class="content-loader">
+          <span class="__1"></span>
+          <span class="__2"></span>
+          <span class="__3"></span>
+          <span class="__4"></span>
+        </div>
+      </div>
+      <div *ngIf="currentRange === 'year' && yearStats" class="col-12 col-md-8">
+        <div class="card panel-card">
+          <div class="card-header">
+            <h5 class="card-title">Leaderboard</h5>
+            <div class="pull-right">
+              <select (change)="filter($event, yearStats.salesReps)" class="form-control form-control-sm">
+                  <option value="fulfilled" selected>Fulfilled</option>
+                  <option *ngFor="let criterion of criteria" [value]="[criterion.value]">{{criterion.name}}</option>
+              </select>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-12">
+                <div class="table-responsive">
+                  <table class="table table-hover">
+                    <thead>
+                      <tr>
+                        <th>S/N</th>
+                        <th>Name</th>
+                        <th>Fulfilled</th>
+                        <th>Cancelled</th>
+                        <th>Rating</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let rep of yearStats.salesReps; let i=index">
+                        <td>{{i + 1}}</td>
+                        <td>{{rep.name}}
+                          <span *ngIf="i === 0" class="badge badge-warning text-white">1<sup>st</sup></span>
+                          <span *ngIf="i === 1" class="badge badge-primary text-white">2<sup>nd</sup></span>
+                          <span *ngIf="i === 2" class="badge badge-dark">3<sup>rd</sup></span>
+                        </td>
+                        <td>{{rep.completed}}</td>
+                        <td>{{rep.cancelled}}</td>
+                        <td>{{rep.ratingPretty}}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div *ngIf="mode === modes[0] && currentRange === 'year'" class="row justify-content-center mt-5">
+      <div *ngIf="currentRange === 'year' && !yearStats" class="col-12">
+        <div class="content-loader">
+          <span class="__1"></span>
+          <span class="__2"></span>
+          <span class="__3"></span>
+          <span class="__4"></span>
+        </div>
+      </div>
+      <div *ngIf="currentRange === 'year' && yearStats" class="col-12">
+        <div class="card panel-card">
+          <div class="card-header">
+            <h5 class="card-title">Orders</h5>
+            <div class="pull-right">
+                <select (change)="filterOrders($event, yearStats.orders, 'year')" class="form-control form-control-sm mr-2">
+                  <option value="completed" selected>Completed</option>
+                  <option value="cancelled">Cancelled</option>
+                  <option value="pending">Pending</option>
+                </select>
+              <button class="btn btn-sm" (click)="refresh('year')">Refresh</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-12">
+                <div class="table-responsive">
+                  <table class="table table-hover">
+                    <thead>
+                      <tr>
+                        <th>S/N</th>
+                        <th>Ref</th>
+                        <th>Date</th>
+                        <th>Buyer</th>
+                        <th>Handler</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let order of filteredYearOrders | paginate: { id: 'yearStats', itemsPerPage: 10, currentPage: p3}; let i=index">
+                        <td>{{i + 1}}</td>
+                        <td>#{{order.ref}}</td>
+                        <td>{{order.modified | happroxy: 'time' }}</td>
+                        <td>{{order.buyer}}</td>
+                        <td>{{order.handler}}</td>
+                        <td>{{order.amount | customCurrency}}</td>
+                        <td>{{sentenceCase(order.tag)}}</td>
+                        <td>
+                          <a (click)="viewDetail(order._id)" href="javascript:void(0);">Details</a>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <div>
+                    <pagination-controls id="yearStats" *ngIf="filteredYearOrders.length > 10" class="pagination" responsive="true" (pageChange)="p3 = $event"></pagination-controls>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div *ngIf="currentRange === 'custom'" class="row justify-content-center mt-5">
+      <div *ngIf="currentRange === 'custom' && !customRangeStats" class="col-12 col-md-4">
+        <div class="content-loader">
+          <span class="__1"></span>
+          <span class="__2"></span>
+          <span class="__3"></span>
+          <span class="__4"></span>
+        </div>
+      </div>
+      <div *ngIf="currentRange === 'custom' && customRangeStats" class="col-12 col-md-4">
+        <div class="card h-100">
+          <div class="card-header">
+            <h5 class="card-title">Overview</h5>
+          </div>
+          <div class="card-body">
+            <div class="row mt-3"></div>
+            <div class="row">
+              <div class="col-12 col-md-2">
+                <h5 class="card-title">{{customRangeStats.orderStats.total}}</h5>
+              </div>
+              <div class="col-12 col-md-10">
+                Total Orders
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-12 col-md-2">
+                <h5 class="card-title">{{customRangeStats.orderStats.fulfilled}}</h5>
+              </div>
+              <div class="col-12 col-md-10">
+                Orders fulfilled
+              </div>
+            </div>
+            <!-- <div class="row">
+              <div class="col-12 col-md-2">
+                <h5 class="card-title">{{customRangeStats.orderStats.cash}}</h5>
+              </div>
+              <div class="col-12 col-md-10">
+                Cash orders
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-12 col-md-2">
+                <h5 class="card-title">{{customRangeStats.orderStats.loyalty}}</h5>
+              </div>
+              <div class="col-12 col-md-10">
+                Loyalty orders
+              </div>
+            </div> -->
+            <div class="row">
+              <div class="col-12 col-md-2">
+                <h5 class="card-title">{{customRangeStats.orderStats.cancelled}}</h5>
+              </div>
+              <div class="col-12 col-md-10">
+                Orders cancelled
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-12 col-md-2">
+                <h5 class="card-title">{{customRangeStats.orderStats.cancelled_seller}}</h5>
+              </div>
+              <div class="col-12 col-md-10">
+                Orders cancelled (By sales reps)
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-12 col-md-2">
+                <h5 class="card-title">{{customRangeStats.orderStats.cancelled_buyer}}</h5>
+              </div>
+              <div class="col-12 col-md-10">
+                Orders cancelled (By buyers)
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="currentRange === 'custom' && !customRangeStats" class="col-12 col-md-8">
+        <div class="content-loader">
+          <span class="__1"></span>
+          <span class="__2"></span>
+          <span class="__3"></span>
+          <span class="__4"></span>
+        </div>
+      </div>
+      <div *ngIf="currentRange === 'custom' && customRangeStats" class="col-12 col-md-8">
+        <div class="card panel-card">
+          <div class="card-header">
+            <h5 class="card-title">Leaderboard</h5>
+            <div class="pull-right">
+              <select (change)="filter($event, customRangeStats.salesReps)" class="form-control form-control-sm">
+                  <option value="fulfilled" selected>Fulfilled</option>
+                  <option *ngFor="let criterion of criteria" [value]="[criterion.value]">{{criterion.name}}</option>
+              </select>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-12">
+                <div class="table-responsive">
+                  <table class="table table-hover">
+                    <thead>
+                      <tr>
+                        <th>S/N</th>
+                        <th>Name</th>
+                        <th>Fulfilled</th>
+                        <th>Cancelled</th>
+                        <th>Rating</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let rep of customRangeStats.salesReps; let i=index">
+                        <td>{{i + 1}}</td>
+                        <td>{{rep.name}}
+                          <span *ngIf="i === 0" class="badge badge-warning text-white">1<sup>st</sup></span>
+                          <span *ngIf="i === 1" class="badge badge-primary text-white">2<sup>nd</sup></span>
+                          <span *ngIf="i === 2" class="badge badge-dark">3<sup>rd</sup></span>
+                        </td>
+                        <td>{{rep.completed}}</td>
+                        <td>{{rep.cancelled}}</td>
+                        <td>{{rep.ratingPretty}}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div *ngIf="mode === modes[0] && currentRange === 'custom'" class="row justify-content-center mt-5">
+      <div *ngIf="currentRange === 'custom' && !customRangeStats" class="col-12">
+        <div class="content-loader">
+          <span class="__1"></span>
+          <span class="__2"></span>
+          <span class="__3"></span>
+          <span class="__4"></span>
+        </div>
+      </div>
+      <div *ngIf="currentRange === 'custom' && customRangeStats" class="col-12">
+        <div class="card panel-card">
+          <div class="card-header">
+            <h5 class="card-title">Orders</h5>
+            <div class="pull-right">
+                <select (change)="filterOrders($event, customRangeStats.orders, 'custom')" class="form-control form-control-sm mr-2">
+                  <option value="completed" selected>Completed</option>
+                  <option value="cancelled">Cancelled</option>
+                  <option value="pending">Pending</option>
+                </select>
+              <button class="btn btn-sm" (click)="refresh('custom')">Refresh</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-12">
+                <div class="table-responsive">
+                  <table class="table table-hover">
+                    <thead>
+                      <tr>
+                        <th>S/N</th>
+                        <th>Ref</th>
+                        <th>Date</th>
+                        <th>Buyer</th>
+                        <th>Handler</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let order of filteredCustomRangeOrders | paginate: { id: 'customStats', itemsPerPage: 10, currentPage: p5}; let i=index">
+                        <td>{{i + 1}}</td>
+                        <td>#{{order.ref}}</td>
+                        <td>{{order.modified | happroxy: 'time' }}</td>
+                        <td>{{order.buyer}}</td>
+                        <td>{{order.handler}}</td>
+                        <td>{{order.amount | customCurrency}}</td>
+                        <td>{{sentenceCase(order.tag)}}</td>
+                        <td>
+                          <a (click)="viewDetail(order._id)" href="javascript:void(0);">Details</a>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <div>
+                    <pagination-controls id="customStats" *ngIf="filteredCustomRangeOrders.length > 10" class="pagination" responsive="true" (pageChange)="p3 = $event"></pagination-controls>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div *ngIf="mode === modes[1]" class="row justify-content-center mt-5">
+      <div *ngIf="!details" class="col-12">
+        <div class="content-loader">
+          <span class="__1"></span>
+          <span class="__2"></span>
+          <span class="__3"></span>
+          <span class="__4"></span>
+        </div>
+      </div>
+      <div *ngIf="details" class="col-12">
+        <div class="card panel-card">
+          <div class="card-header">
+            <h5 class="card-title">Order Details
+              <a class="pull-right" (click)="toList()" href="javascript:void(0);">&larr; back</a>
+            </h5>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-12">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                      <tbody>
+                        <tr *ngFor="let item of details | paginate: { id: 'details', itemsPerPage: 10, currentPage: p4}">
+                          <td>{{item.product}}</td>
+                          <td>{{item.quantity}} units</td>
+                          <td>{{item.amount | customCurrency}}</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                    <div>
+                      <pagination-controls id="details" *ngIf="details.length > 10" class="pagination" responsive="true" (pageChange)="p4 = $event"></pagination-controls>
+                    </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,553 @@
+<div class="content-wrap">
+  <!--Top dashboard nav from /components/main/main-nav-->
+  <!--the title prop is a string set in the .ts file of this component. An example is "Manufacturer". This will show on the top dashboard nav-->
+  <app-main-nav [title]="title" [mode]="modeWatch | async" [componentInstance]="this"></app-main-nav>
+
+  <!--Main content here-->
+  <div class="container">
+    <div *ngIf="mode === modes[0]" class="sub-header mt-3">
+      <div>
+        Sort by
+        <select (change)="sort($event)" class="form-control form-control-sm">
+            <option value="all" selected>All</option>
+            <option *ngFor="let status of statuses" [value]="[status.value]">{{status.name}}</option>
+        </select>
+      </div>
+      <div>
+        <input type="text" class="form-control form-control-sm"(input)="search()" [(ngModel)]="query" [ngModelOptions]="{standalone: true}" placeholder="Search...">
+      </div>
+      <div>
+        <button class="btn btn-primary btn-sm float-right" (click)="setMode(1)">
+          <i class="fa fa-plus mr-1"></i>
+          New Survey
+        </button>
+      </div>
+    </div>
+    
+    <div *ngIf="(mode === modes[0]) && ((surveys && surveys.length !== 0) && (query === ''))" class="row mt-5">
+      <div class="col-sm-6 col-lg-4 my-2 d-flex" *ngFor="let survey of sorted | paginate: { id: 'sorted', itemsPerPage: 6, currentPage: p}">
+        <div class="card item-card flex-fill">
+          <div class="card-body">
+            <div class="item-card-info">
+              <div>
+                <h5 class="item-name">{{survey.title}}</h5>
+                <span class="item-description">{{survey.description}}</span>
+              </div>
+            </div>
+          </div>
+          <div class="card-footer">
+            <a href="javascript:void(0);" [routerLink]="['/main/survey-responses/' + survey._id]" ><b>{{survey.responses}}</b> Responses</a> &nbsp;
+            <button (click)="spawnEdit(survey)" class="btn btn-outline-primary btn-xs">Edit</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div *ngIf="(mode === modes[0]) && ((surveys && surveys.length !== 0) && (query !== ''))" class="row mt-5">
+      <div class="col-sm-6 col-lg-4 my-2 d-flex" *ngFor="let survey of queryArray | paginate: { id: 'queries', itemsPerPage: 6, currentPage: p}">
+        <div class="card h-100 item-card flex-fill">
+          <div class="card-body">
+            <div class="item-card-info">
+              <div>
+                <h5 class="item-name">{{survey.title}}</h5>
+                <span class="item-description">{{survey.description}}</span>
+              </div>
+            </div>
+          </div>
+          <div class="card-footer">
+            <a href="javascript:void(0);" [routerLink]="['/main/survey-responses/' + survey._id]" ><b>{{survey.responses}}</b> Responses</a> &nbsp;
+            <button (click)="spawnEdit(survey)" class="btn btn-outline-primary btn-xs">Edit</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <ng-container *ngIf="(mode === modes[0]) && surveys">
+      <pagination-controls id="queries" *ngIf="query !== '' && queryArray.length > 6" class="pagination" responsive="true" (pageChange)="p = $event"></pagination-controls>
+      <pagination-controls id="sorted" *ngIf="query === '' && sorted.length > 6" class="pagination" responsive="true" (pageChange)="p = $event"></pagination-controls>
+    </ng-container>
+    <div class="row justify-content-center">
+      <div class="col-12 col-md-6">
+        <div *ngIf="(mode === modes[0]) && surveys && surveys.length === 0" class="empty-state text-center mt-5">
+          <img src="../../../../assets/img/empty-data.svg">
+          <h5 class="mt-3">No surveys</h5>
+          <p>No surveys were found for this query. Please try another query or clear your filters.</p>
+        </div>
+        <div *ngIf="(mode === modes[0]) && !surveys" class="content-loader mt-5">
+          <span class="__1"></span>
+          <span class="__2"></span>
+          <span class="__3"></span>
+          <span class="__4"></span>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="mode === modes[1]" class="row form justify-content-center my-5">
+      <div class="col-12 col-md-7">
+        <div class="card panel-card">
+          <div class="card-header">
+            <h5 class="card-title">New Survey</h5>
+            <button (click)="closeCreate(0)" class="btn btn-light btn-icon"><i class="fa fa-close"></i></button>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-12">
+                <div class="form-group">
+                  <label for="title">Title <span class="text-danger">*</span></label>
+                  <input name="title" class="form-control" id="title" aria-describedby="title" [(ngModel)]="createSurvey.title"
+                    [ngModelOptions]="{standalone: true}" #title="ngModel" />
+                  <small class="form-error" *ngIf="title.value === '' && (title.dirty || title.touched)">
+                    Enter a title!
+                  </small>
+                </div>
+              </div>
+              <!-- <div class="col-12 col-md-4">
+                <div class="form-group">
+                  <label for="status">Status</label>
+                  <select class="form-control" id="status" name="status" [(ngModel)]="createSurvey.status"
+                    [ngModelOptions]="{standalone: true}" #status="ngModel">
+                    <option value="select">-- Select a status --</option>
+                    <option *ngFor="let status of statuses" [value]="[status.value]">{{status.name}}</option>
+                  </select>
+                  <small class="form-error" *ngIf="status.value === 'select' && (status.dirty || status.touched)">
+                    Select a status
+                  </small>
+                </div>
+              </div> -->
+              <div class="col-12">
+                <div class="form-group">
+                  <label for="desc">Description <span class="text-danger">*</span></label>
+                  <textarea name="desc" class="form-control" id="desc" [(ngModel)]="createSurvey.description" [ngModelOptions]="{standalone: true}"
+                    #desc="ngModel"></textarea>
+                  <small class="form-error" *ngIf="desc.value === '' && (desc.dirty || desc.touched)">
+                    Enter a description!
+                  </small>
+                </div>
+              </div>
+              <div class="col-12">
+                <div class="form-group-lg">
+                  <label for="image">Image <span class="text-danger">*</span></label>
+                  <span class="form-helper">This image will be displayed on the retailer's feed. We recommend a 1024 x 512 pixel JPG or PNG, under 1 MB in size.</span>
+                  <div class="entry-image" *ngIf="createSurveySrc"  [style.background-image]="'url(' + createSurveySrc + ')'"></div>
+                  <div class="mt-3">
+                    <input (change)="previewSurvey($event)" name="files" id="files" type="file">
+                    <span *ngIf="!createSurveyImage" (click)="uploadFile()" class="btn btn-block btn-upload">
+                      <i class="fa fa-image mr-1"></i>
+                      Add Image
+                    </span>
+                    <span *ngIf="createSurveyImage" (click)="uploadFile()" class="btn btn-sm btn-upload">
+                      <i class="fa fa-pencil mr-1"></i>
+                      Change Image
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="form-group">
+                  <label for="store">Store Type <span class="text-danger">*</span></label>
+                  <select class="form-control" id="store" name="store" [(ngModel)]="createSurvey.store_type"
+                    [ngModelOptions]="{standalone: true}" #store="ngModel">
+                    <option value="select">-- Store Type --</option>
+                    <option value="*">All store types</option>
+                    <option *ngFor="let store of storeTypes" [value]="[store._id]">{{store.name}}</option>
+                  </select>
+                  <small class="form-error" *ngIf="store.value === 'select' && (store.dirty || store.touched)">
+                    Select a store type
+                  </small>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="form-group">
+                  <label for="cash">Reward <span class="text-danger">*</span></label>
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text">NGN</span>
+                    </div>
+                    <input type="number" class="form-control" id="cash" [(ngModel)]="createSurvey.reward_wallet" [ngModelOptions]="{standalone: true}" name="cash" />
+                  </div>
+                </div>
+              </div>
+              <!-- <div class="col-12 col-md-6">
+                <div class="form-group">
+                  <label for="points">Reward (Points)</label>
+                  <input type="number" class="form-control" id="points" [(ngModel)]="createSurvey.reward_points" [ngModelOptions]="{standalone: true}"
+                    name="points" />
+                </div>
+              </div> -->
+            </div>
+          </div>
+          <div class="card-footer">
+              <button [disabled]="validateCreateSurvey() !== true " (click)="createAction()" type="submit" class="btn btn-primary">
+              Create
+            </button>
+            <button (click)="closeCreate()" class="btn btn-light">
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div *ngIf="mode === modes[2]" class="row form justify-content-center my-5">
+      <div class="col-12 col-md-7">
+        <div class="card panel-card">
+          <div class="card-header">
+            <h5 class="card-title">Edit Survey</h5>
+            <div>
+                <button class="btn btn-primary btn-sm" (click)="loadQuestions()"> Survey Questions </button>
+                <button (click)="closeCreate(0)" class="btn btn-light btn-icon ml-3"><i class="fa fa-close"></i></button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-12">
+                <div class="form-group">
+                  <label for="title">Title <span class="text-danger">*</span></label>
+                  <input name="title" class="form-control" id="title" aria-describedby="title" [(ngModel)]="editSurvey.title"
+                    [ngModelOptions]="{standalone: true}" #title="ngModel" />
+                  <small class="form-error" *ngIf="title.value === '' && (title.dirty || title.touched)">
+                    Enter a title!
+                  </small>
+                </div>
+              </div>
+              <div class="col-12">
+                <div class="form-group">
+                  <label for="desc">Description <span class="text-danger">*</span></label>
+                  <textarea name="desc" class="form-control" id="desc" [(ngModel)]="editSurvey.description" [ngModelOptions]="{standalone: true}"
+                    #desc="ngModel"></textarea>
+                  <small class="form-error" *ngIf="desc.value === '' && (desc.dirty || desc.touched)">
+                    Enter a description!
+                  </small>
+                </div>
+              </div>
+              <div class="col-12">
+                <div class="form-group-lg">
+                  <label for="image">Image <span class="text-danger">*</span></label>
+                  <span class="form-helper">This image will be displayed on the retailer's feed. We recommend a 1024 x 512 pixel JPG or PNG, under 1 MB in size.</span>
+                  <div class="entry-image" *ngIf="editSurveySrc"  [style.background-image]="'url(' + editSurveySrc + ')'"></div>
+                  <div class="mt-3">
+                    <input (change)="previewSurvey($event)" name="files" id="files" type="file">
+                    <span *ngIf="!editSurveySrc" (click)="uploadFile()" class="btn btn-block btn-upload">
+                      <i class="fa fa-image mr-1"></i>
+                      Add Image
+                    </span>
+                    <span *ngIf="editSurveySrc" (click)="uploadFile()" class="btn btn-sm btn-upload">
+                      <i class="fa fa-pencil mr-1"></i>
+                      Change Image
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="form-group">
+                  <label for="status">Status <span class="text-danger">*</span></label>
+                  <select class="form-control" id="status" name="status" [(ngModel)]="editSurvey.status"
+                    [ngModelOptions]="{standalone: true}" #status="ngModel">
+                    <option value="select">-- Select a status --</option>
+                    <option *ngFor="let status of statuses" [value]="[status.value]">{{status.name}}</option>
+                  </select>
+                  <small class="form-error" *ngIf="status.value === 'select' && (status.dirty || status.touched)">
+                    Select a status
+                  </small>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="form-group">
+                  <label for="store">Store Type <span class="text-danger">*</span></label>
+                  <select class="form-control" id="store" name="store" [(ngModel)]="editSurvey.store_type"
+                    [ngModelOptions]="{standalone: true}" #store="ngModel">
+                    <option value="select">-- Store Type --</option>
+                    <option value="*">All store types</option>
+                    <option *ngFor="let store of storeTypes" [value]="[store._id]">{{store.name}}</option>
+                  </select>
+                  <small class="form-error" *ngIf="store.value === 'select' && (store.dirty || store.touched)">
+                    Select a store type
+                  </small>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="form-group">
+                  <label for="cash">Reward <span class="text-danger">*</span></label>
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text">NGN</span>
+                    </div>
+                    <input type="number" class="form-control" id="cash" [(ngModel)]="editSurvey.reward_wallet" [ngModelOptions]="{standalone: true}" name="cash" />
+                  </div>
+                </div>
+              </div>
+              <!-- <div class="col-12 col-md-6">
+                <div class="form-group">
+                  <label for="points">Reward (Points)</label>
+                  <input type="number" class="form-control" id="points" [(ngModel)]="editSurvey.reward_points" [ngModelOptions]="{standalone: true}"
+                    name="points" />
+                </div>
+              </div> -->
+            </div>
+          </div>
+          <div class="card-footer">
+            <div>
+              <button [disabled]="validateEditSurvey() !== true " (click)="editAction()" type="submit" class="btn btn-primary">
+                Edit
+              </button>
+              <button (click)="closeCreate()" class="btn btn-light ml-2"> Cancel </button>
+            </div>
+            <button class="btn btn-danger btn-sm" (click)="spawnDelete(currentSurvey._id)">
+              <i class="fa fa-trash mr-1"></i>
+              Delete
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="mode === modes[3]" class="sub-header">
+      <button class="btn btn-light btn-sm" (click)="backToSurvey()">
+          &larr; Return to Survey
+      </button>
+      <button class="btn btn-primary btn-sm" (click)="spawnQuestionCreate()">
+        <i class="fa fa-plus mr-1"></i>
+        Add Question
+      </button>
+    </div>
+    <div *ngIf="(mode === modes[3]) && (currentSurveyQs && currentSurveyQs.length !== 0)" class="row mt-5">
+      <div class="col-sm-6 col-lg-4 my-2 d-flex" *ngFor="let question of currentSurveyQs | paginate: { id: 'Qs', itemsPerPage: 6, currentPage: p1}">
+        <div class="card item-card flex-fill">
+          <div class="card-body">
+            <div class="item-card-info">
+              <div>
+                <h5 class="item-name item-title">Q{{question.index}}</h5>
+                <span class="item-description item-type" *ngIf="question.type === qTypes[0].value">{{qTypes[0].name}}</span>
+                <span class="item-description item-type" *ngIf="question.type === qTypes[1].value">{{qTypes[1].name}}</span>
+                <span class="item-description item-question">{{question.title}}</span>
+              </div>
+            </div>
+          </div>
+          <div class="card-footer">
+            <!-- <a href="#"><b>{{brandCount(manufacturer._id)}}</b> Brands</a> &nbsp; -->
+            <button (click)="spawnEditQ(question)" class="btn btn-outline-primary btn-xs">Edit</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div *ngIf="(mode === modes[3]) && ((currentSurveyQs && currentSurveyQs.length !== 0))">
+      <pagination-controls id="Qs" class="pagination" responsive="true" (pageChange)="p1 = $event"></pagination-controls>
+    </div>
+
+    <div class="row justify-content-center">
+      <div class="col-12 col-md-6">
+        <div *ngIf="(mode === modes[3]) && currentSurveyQs && currentSurveyQs.length === 0" class="empty-state text-center mt-5">
+          <img src="../../../../assets/img/empty-data.svg">
+          <h5 class="mt-3">No questions</h5>
+          <p>No question were found for this survey.</p>
+        </div>
+        <div *ngIf="(mode === modes[3]) && !currentSurveyQs" class="content-loader mt-5">
+          <span class="__1"></span>
+          <span class="__2"></span>
+          <span class="__3"></span>
+          <span class="__4"></span>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="mode === modes[4]" class="row form justify-content-center mt-5">
+      <div class="col-12 col-md-7">
+        <div class="card panel-card">
+          <div class="card-header">
+            <h5 class="card-title">New Question</h5>
+            <button (click)="closeQuestionCU(0)" class="btn btn-light btn-icon"><i class="fa fa-close"></i></button>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-12">
+                <div class="form-group-lg">
+                  <label for="image">Image (Optional)</label>
+                  <span class="form-helper">This image will be displayed with the question. We recommend a 1024 x 512 pixel JPG or PNG, under 1 MB in size.</span>
+                  <div (click)="showImage('create-img')" class="entry-image" *ngIf="createSrc"  [style.background-image]="'url(' + createSrc + ')'"></div>
+                  <img *ngIf="createSrc" id='create-img' [src]="createSrc" hidden ngxViewer>
+                  <div class="mt-3">
+                    <input (change)="preview($event)" name="files" id="files" type="file">
+                    <span *ngIf="!createImage" (click)="uploadFile()" class="btn btn-block btn-upload">
+                      <i class="fa fa-image mr-1"></i>
+                      Add Image
+                    </span>
+                    <span *ngIf="createImage" (click)="uploadFile()" class="btn btn-sm btn-upload">
+                      <i class="fa fa-pencil mr-1"></i>
+                      Change Image
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-2">
+                <div class="form-group">
+                  <label for="index">Index</label>
+                  <input name="index" class="form-control" id="index" type="number" aria-describedby="index" [(ngModel)]="createQ.index"
+                    [ngModelOptions]="{standalone: true}" #index="ngModel" />
+                  <small class="form-error" *ngIf="index.value === null && (index.dirty || index.touched)">
+                    Enter an index!
+                  </small>
+                </div>
+              </div>
+              <div class="col-12 col-md-5">
+                <div class="form-group">
+                  <label for="status">Status</label>
+                  <select class="form-control" id="status" name="status" [(ngModel)]="createQ.status"
+                    [ngModelOptions]="{standalone: true}" #status="ngModel">
+                    <option value="select">-- Select a status --</option>
+                    <option *ngFor="let status of statuses" [value]="[status.value]">{{status.name}}</option>
+                  </select>
+                  <small class="form-error" *ngIf="status.value === 'select' && (status.dirty || status.touched)">
+                    Select a status
+                  </small>
+                </div>
+              </div>
+              <div class="col-12 col-md-5">
+                <div class="form-group">
+                  <label for="qtype">Question Type <span class="text-danger">*</span></label>
+                  <select (change)="spawnChoicesCreate($event)" class="form-control" id="qtype" name="qtype" [(ngModel)]="createQ.type"
+                    [ngModelOptions]="{standalone: true}" #qtype="ngModel">
+                    <option value="select">-- Question Type --</option>
+                    <option *ngFor="let type of qTypes" [value]="[type.value]">{{type.name}}</option>
+                  </select>
+                  <small class="form-error" *ngIf="qtype.value === 'select' && (qtype.dirty || qtype.touched)">
+                    Select a question type
+                  </small>
+                </div>
+              </div>
+              <div class="col-12">
+                <div class="form-group">
+                  <label for="title">Question <span class="text-danger">*</span></label>
+                  <input name="title" class="form-control" id="title" aria-describedby="title" [(ngModel)]="createQ.title"
+                    [ngModelOptions]="{standalone: true}" #title="ngModel" />
+                  <small class="form-error" *ngIf="title.value === '' && (title.dirty || title.touched)">
+                    Enter a question!
+                  </small>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Options -->
+            <div class="row" *ngIf="createQ.type === qTypes[1].value">
+              <div *ngFor="let choice of createChoices" class="col-12 col-md-6">
+                  <div class="form-group">
+                    <label [for]="'choice' + choice.index">Option {{choice.index}}</label>
+                    <input [name]="'choice' + choice.index" class="form-control" [id]="'choice' + choice.index"
+                      [(ngModel)]="choice.title" [ngModelOptions]="{standalone: true}"  />
+                  </div>
+              </div>
+            </div>
+          </div>
+          <div class="card-footer">
+            <button [disabled]="validateCreateQuestion() !== true" (click)="createQAction()" type="submit" class="btn btn-primary">
+              Create
+            </button>
+            <button (click)="closeQuestionCU()" class="btn btn-light">
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="mode === modes[5]" class="row form justify-content-center my-5">
+      <div class="col-12 col-md-7">
+        <div class="card panel-card">
+          <div class="card-header">
+            <h5 class="card-title">Edit Question</h5>
+            <button (click)="closeQuestionCU(0)" class="btn btn-light btn-icon"><i class="fa fa-close"></i></button>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-12">
+                <div class="form-group-lg">
+                  <label for="image">Image (Optional)</label>
+                  <span class="form-helper">This image will be displayed with the question. We recommend a 1024 x 512 pixel JPG or PNG, under 1 MB in size.</span>
+                  <div (click)="showImage('edit-img')" class="entry-image" *ngIf="editSrc"  [style.background-image]="'url(' + editSrc + ')'"></div>
+                  <img *ngIf="editSrc" id='edit-img' [src]="editSrc" hidden ngxViewer>
+                  <div class="mt-3">
+                    <input (change)="preview($event)" name="files" id="files" type="file">
+                    <span *ngIf="!editSrc" (click)="uploadFile()" class="btn btn-block btn-upload">
+                      <i class="fa fa-image mr-1"></i>
+                      Add Image
+                    </span>
+                    <span *ngIf="editSrc" (click)="uploadFile()" class="btn btn-sm btn-upload">
+                      <i class="fa fa-pencil mr-1"></i>
+                      Change Image
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-2">
+                <div class="form-group">
+                  <label for="index">Index</label>
+                  <input name="index" class="form-control" id="index" type="number" aria-describedby="index" [(ngModel)]="editQ.index"
+                    [ngModelOptions]="{standalone: true}" #index="ngModel" />
+                  <small class="form-error" *ngIf="index.value === null && (index.dirty || index.touched)">
+                    Enter an index!
+                  </small>
+                </div>
+              </div>
+              <div class="col-12 col-md-5">
+                <div class="form-group">
+                  <label for="status">Status</label>
+                  <select class="form-control" id="status" name="status" [(ngModel)]="editQ.status"
+                    [ngModelOptions]="{standalone: true}" #status="ngModel">
+                    <option value="select">-- Select a status --</option>
+                    <option *ngFor="let status of statuses" [value]="[status.value]">{{status.name}}</option>
+                  </select>
+                  <small class="form-error" *ngIf="status.value === 'select' && (status.dirty || status.touched)">
+                    Select a status
+                  </small>
+                </div>
+              </div>
+              <div class="col-12 col-md-5">
+                <div class="form-group">
+                  <label for="qtype">Question Type <span class="text-danger">*</span></label>
+                  <select (change)="spawnChoicesCreate($event)" class="form-control" id="qtype" name="qtype" [(ngModel)]="editQ.type"
+                    [ngModelOptions]="{standalone: true}" #qtype="ngModel">
+                    <option value="select">-- Question Type --</option>
+                    <option *ngFor="let type of qTypes" [value]="[type.value]">{{type.name}}</option>
+                  </select>
+                  <small class="form-error" *ngIf="qtype.value === 'select' && (qtype.dirty || qtype.touched)">
+                    Select a question type
+                  </small>
+                </div>
+              </div>
+              <div class="col-12">
+                <div class="form-group">
+                  <label for="title">Question <span class="text-danger">*</span></label>
+                  <input name="title" class="form-control" id="title" aria-describedby="title" [(ngModel)]="editQ.title"
+                    [ngModelOptions]="{standalone: true}" #title="ngModel" />
+                  <small class="form-error" *ngIf="title.value === '' && (title.dirty || title.touched)">
+                    Enter a question!
+                  </small>
+                </div>
+              </div>
+            </div>
+
+            <!-- Optionns -->
+            <div class="row" *ngIf="editQ.type === qTypes[1].value">
+              <div *ngFor="let choice of editChoices" class="col-12 col-md-6">
+                  <div class="form-group">
+                    <label [for]="'choice' + choice.index">Option {{choice.index}}</label>
+                    <input [name]="'choice' + choice.index" class="form-control" [id]="'choice' + choice.index"
+                      [(ngModel)]="choice.title" [ngModelOptions]="{standalone: true}"  />
+                  </div>
+              </div>
+            </div>
+          </div>
+          <div class="card-footer">
+            <div>
+              <button [disabled]="validateEditQuestion() !== true" (click)="editQAction()" type="submit" class="btn btn-primary">
+                Edit
+              </button>
+              <button (click)="closeQuestionCU()" class="btn btn-light ml-2"> Cancel </button>
+            </div>
+            <button (click)="spawnDeleteQ(currentQ._id, currentQ.survey_id)" class="btn btn-danger btn-sm">
+              <i class="fa fa-trash mr-1"></i>
+              Delete 
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

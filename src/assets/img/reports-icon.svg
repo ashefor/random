@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="34px" height="44px" viewBox="0 0 34 44" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 53 (72520) - https://sketchapp.com -->
+    <title>Asset 1</title>
+    <desc>Created with Sketch.</desc>
+    <g id="Website" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Landing-5" transform="translate(-214.000000, -2842.000000)">
+            <g id="Group-10" transform="translate(0.000000, 1204.000000)">
+                <g id="Group-5-Copy-3" transform="translate(214.000000, 1638.000000)">
+                    <g id="Asset-1">
+                        <polygon id="Path" fill="#23CBFD" fill-rule="nonzero" opacity="0.4" points="33.8 6.2 33.8 44 0 44 0 0 28.84 0"></polygon>
+                        <path d="M9.11,37.31 L9.11,24.7" id="Path" stroke="#3B54EC" stroke-width="3"></path>
+                        <path d="M16.96,37.31 L16.96,16" id="Path" stroke="#3B54EC" stroke-width="3"></path>
+                        <path d="M24.8,37.31 L24.8,21.65" id="Path" stroke="#3B54EC" stroke-width="3"></path>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

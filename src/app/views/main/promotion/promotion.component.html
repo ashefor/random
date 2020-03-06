@@ -1,0 +1,269 @@
+<div class="content-wrap">
+  <!--Top dashboard nav from /components/main/main-nav-->
+  <!--the title prop is a string set in the .ts file of this component. An example is "Manufacturer". This will show on the top dashboard nav-->
+  <app-main-nav [title]="title" [mode]="modeWatch | async" [componentInstance]="this"></app-main-nav>
+
+  <!--Main content here-->
+  <div class="container">
+    <div *ngIf="mode === modes[0]" class="sub-header mt-3">
+      <div>
+        Sort by
+        <select (change)="sort($event)" class="form-control form-control-sm">
+            <option value="all" selected>All</option>
+            <option *ngFor="let status of statuses" [value]="[status.value]">{{status.name}}</option>
+        </select>
+      </div>
+      <div>
+        <input type="text" class="form-control form-control-sm"(input)="search()" [(ngModel)]="query" [ngModelOptions]="{standalone: true}" placeholder="Search...">
+      </div>
+      <div>
+        <button class="btn btn-primary btn-sm float-right" (click)="setMode(1)">
+          <i class="fa fa-plus mr-1"></i>
+          New Promotion
+        </button>
+      </div>
+    </div>
+    
+    <div *ngIf="(mode === modes[0]) && ((promotions && promotions.length !== 0) && (query === ''))" class="row mt-5">
+      <div class="col-sm-6 col-lg-4 my-2 d-flex" *ngFor="let promotion of sorted | paginate: { itemsPerPage: 6, currentPage: p}">
+        <div class="card promo-card flex-fill">
+          <div class="card-body">
+            <div class="promo-card-info">
+              <div>
+                <h5 class="promo-name">{{promotion.title}}</h5>
+                <span class="promo-meta">{{promotion.productName}}</span>
+                <span class="">{{promotion.description}}</span>
+              </div>
+              <!-- <div class="promo-image" [style.background-image]="'url(' + promotion.image + ')'"></div> -->
+            </div>
+          </div>
+          <div class="card-footer">
+            <button (click)="spawnEdit(promotion)" class="btn btn-outline-primary btn-xs">Edit</button>
+            <div class="toggle-box">
+              <input type="checkbox" [id]="'status_' + promotion._id" [name]="'status_' + promotion._id" role="toggle"
+                [checked]="promotion.status === 'active'" (click)="toggleStatus(promotion)">
+              <label [for]="'status_' + promotion._id" role="toggle"></label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div *ngIf="(mode === modes[0]) && ((promotions && promotions.length !== 0) && (query !== ''))" class="row mt-5">
+      <div class="col-sm-6 col-lg-4 my-2 d-flex" *ngFor="let promotion of queryArray | paginate: { itemsPerPage: 6, currentPage: p}">
+        <div class="card promo-card flex-fill">
+          <div class="card-body">
+            <div class="promo-card-info">
+              <div>
+                <h5 class="promo-name">{{promotion.title}}</h5>
+                <span class="promo-meta">{{promotion.productName}}</span>
+                <span class="">{{promotion.description}}</span>
+              </div>
+              <!-- <div class="promo-image" [style.background-image]="'url(' + promotion.image + ')'"></div> -->
+            </div>
+          </div>
+          <div class="card-footer">
+              <button (click)="spawnEdit(promotion)" class="btn btn-outline-primary btn-xs">Edit</button>
+              <div class="toggle-box">
+                <input type="checkbox" [id]="'status_' + promotion._id" [name]="'status_' + promotion._id" role="toggle"
+                  [checked]="promotion.status === 'active'" (click)="toggleStatus(promotion)">
+                <label [for]="'status_' + promotion._id" role="toggle"></label>
+              </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <ng-container *ngIf="(mode === modes[0]) && promotions">
+        <pagination-controls *ngIf="query !== '' && queryArray.length > 6" class="pagination" responsive="true" (pageChange)="p = $event"></pagination-controls>
+        <pagination-controls *ngIf="query === '' && sorted.length > 6" class="pagination" responsive="true" (pageChange)="p = $event"></pagination-controls>
+    </ng-container>
+    <div class="row justify-content-center">
+      <div class="col-12 col-md-6">
+        <div *ngIf="(mode === modes[0]) && promotions && promotions.length === 0" class="empty-state mt-5 text-center">
+          <img src="../../../../assets/img/empty-data.svg">
+          <h5 class="mt-3">No promotions</h5>
+          <p>No promotions were found for this query. Please try another query or clear your filters.</p>
+        </div>
+        <div *ngIf="(mode === modes[0]) && !promotions" class="content-loader mt-5">
+          <span class="__1"></span>
+          <span class="__2"></span>
+          <span class="__3"></span>
+          <span class="__4"></span>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="mode === modes[1]" class="row form justify-content-center my-5">
+      <div class="col-12 col-md-7">
+        <div class="card panel-card">
+          <div class="card-header">
+            <h5 class="card-title">New Promotion</h5>
+            <button (click)="closeCreate(0)" class="btn btn-light btn-icon"><i class="fa fa-close"></i></button>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-12">
+                <div class="form-group">
+                  <label for="title">Title <span class="text-danger">*</span></label>
+                  <input name="title" class="form-control" id="title" aria-describedby="title" [(ngModel)]="create.title"
+                  #title="ngModel" [ngModelOptions]="{standalone: true}" />
+                  <small class="form-error" *ngIf="title.value === '' && (title.dirty || title.touched)">
+                    Enter a title!
+                  </small>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="form-group">
+                  <label for="status">Status <span class="text-danger">*</span></label>
+                  <select class="form-control" id="select" [(ngModel)]="create.status" #status="ngModel"
+                    [ngModelOptions]="{standalone: true}" name="status">
+                    <option value="select">-- Select Status --</option>
+                    <option *ngFor="let status of statuses" [value]="[status.value]">{{status.name}}</option>
+                  </select>
+                  <small class="form-error" *ngIf="status.value === 'select' && (status.dirty || status.touched)">
+                    Select Status
+                  </small>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="form-group">
+                  <label for="product">Product <span class="text-danger">*</span></label>
+                  <select class="form-control" id="product" [(ngModel)]="create.product_id" #product="ngModel"
+                    [ngModelOptions]="{standalone: true}" name="product">
+                    <option value="select" selected>-- Select Product --</option>
+                    <option *ngFor="let product of products" [value]="[product._id]">{{product.name}}</option>
+                  </select>
+                  <small class="form-error" *ngIf="product.value === 'select' && (product.dirty || product.touched)">Select a product!</small>
+                </div>
+              </div>
+              <div class="col-12">
+                <div class="form-group">
+                  <label for="description">Description <span class="text-danger">*</span></label>
+                  <textarea id="description" aria-describedby="description" [(ngModel)]="create.description"
+                  #description="ngModel" [ngModelOptions]="{standalone: true}" name="description" class="form-control" rows="2"></textarea>
+                  <small class="form-error" *ngIf="description.value === '' && (description.dirty || description.touched)">
+                    Enter a description!
+                  </small>
+                </div>
+              </div>
+              <div class="col-12">
+                <div class="form-group-lg">
+                  <label for="image">Image <span class="text-danger">*</span></label>
+                  <span class="form-helper">This image will be displayed on the retailer's feed. We recommend a 1024 x 512 pixel JPG or PNG, under 1 MB in size.</span>
+                  <div class="entry-image" *ngIf="createSrc"  [style.background-image]="'url(' + createSrc + ')'"></div>
+                  <img *ngIf="createSrc" id='create-img' [src]="createSrc" hidden ngxViewer>
+                  <div class="mt-3">
+                    <input (change)="preview($event)" name="files" id="files" type="file">
+                    <span *ngIf="!createImage" (click)="uploadFile()" class="btn btn-block btn-upload">
+                      <i class="fa fa-image mr-1"></i>
+                      Add Image
+                    </span>
+                    <span *ngIf="createImage" (click)="uploadFile()" class="btn btn-sm btn-upload">
+                      <i class="fa fa-pencil mr-1"></i>
+                      Change Image
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card-footer">
+            <button [disabled]="checkValid(create) === false" (click)="createAction()" type="submit" class="btn btn-primary">
+              Create
+            </button>
+            <button (click)="closeCreate(0)" class="btn btn-light"> Cancel </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="mode === modes[2]" class="row form justify-content-center my-5">
+      <div class="col-12 col-md-7">
+        <div class="card panel-card">
+          <div class="card-header">
+            <h5 class="card-title">Edit Promotion</h5>
+            <button (click)="closeEdit(0)" class="btn btn-light btn-icon"><i class="fa fa-close"></i></button>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-12">
+                <div class="form-group">
+                  <label for="title">Title <span class="text-danger">*</span></label>
+                  <input name="title" class="form-control" id="title" aria-describedby="title" [(ngModel)]="edit.title"
+                  #title="ngModel" [ngModelOptions]="{standalone: true}" />
+                  <small class="form-error" *ngIf="title.value === '' && (title.dirty || title.touched)">
+                    Enter a title!
+                  </small>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="form-group">
+                  <label for="status">Status <span class="text-danger">*</span></label>
+                  <select class="form-control" id="select" [(ngModel)]="edit.status" #status="ngModel"
+                    [ngModelOptions]="{standalone: true}" name="status">
+                    <option value="select">-- Select Status --</option>
+                    <option *ngFor="let status of statuses" [value]="[status.value]">{{status.name}}</option>
+                  </select>
+                  <small class="form-error" *ngIf="status.value === 'select' && (status.dirty || status.touched)">
+                    Select a status
+                  </small>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="form-group">
+                  <label for="product">Product <span class="text-danger">*</span></label>
+                  <select class="form-control" id="product" [(ngModel)]="edit.product_id" #product="ngModel"
+                    [ngModelOptions]="{standalone: true}" name="product">
+                    <option value="select" selected>-- Select Product --</option>
+                    <option *ngFor="let product of products" [value]="[product._id]">{{product.name}}</option>
+                  </select>
+                  <small class="form-error" *ngIf="product.value === 'select' && (product.dirty || product.touched)">Select a product!</small>
+                </div>
+              </div>
+              <div class="col-12">
+                <div class="form-group">
+                  <label for="description">Description <span class="text-danger">*</span></label>
+                  <textarea id="description" aria-describedby="description" [(ngModel)]="edit.description"
+                  #description="ngModel" [ngModelOptions]="{standalone: true}" name="description" class="form-control" rows="2"></textarea>
+                  <small class="form-error" *ngIf="description.value === '' && (description.dirty || description.touched)">
+                    Enter a description!
+                  </small>
+                </div>
+              </div>
+              <div class="col-12">
+                <div class="form-group-lg">
+                  <label for="image">Image <span class="text-danger">*</span></label>
+                  <span class="form-helper">This image will be displayed on the retailer's feed. We recommend a 1024 x 512 pixel JPG or PNG, under 1 MB in size.</span>
+                  <div class="entry-image" *ngIf="editSrc"  [style.background-image]="'url(' + editSrc + ')'"></div>
+                  <img *ngIf="editSrc" id='edit-img' [src]="editSrc" hidden ngxViewer>
+                  <div class="mt-3">
+                    <input (change)="preview($event)" name="files" id="files" type="file">
+                    <span *ngIf="!editSrc" (click)="uploadFile()" class="btn btn-block btn-upload">
+                      <i class="fa fa-image mr-1"></i>
+                      Add Image
+                    </span>
+                    <span *ngIf="editSrc" (click)="uploadFile()" class="btn btn-sm btn-upload">
+                      <i class="fa fa-pencil mr-1"></i>
+                      Change Image
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card-footer">
+            <div>
+              <button [disabled]="checkValid(edit) === false" (click)="editAction()" type="submit" class="btn btn-primary">
+                Edit
+              </button>
+              <button (click)="closeEdit(0)" class="btn btn-light ml-2"> Cancel </button>
+            </div>
+            <button class="btn btn-danger btn-sm" (click)="spawnDelete(currentPromotion._id)">
+              <i class="fa fa-trash mr-1"></i>
+              Delete
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,681 @@
+<div class="content-wrap">
+  <!--Top dashboard nav from /components/main/main-nav-->
+  <!--the title prop is a string set in the .ts file of this component. An example is "Manufacturer". This will show on the top dashboard nav-->
+  <app-main-nav [title]="title"></app-main-nav>
+
+  <!--Main content here-->
+  <div class="container">
+    <!-- Stats -->
+    <div *ngIf="mode === modes[0] && user_group === 'manufacturer_staff'" class="row mt-5 graph-section">
+      <div class="col-6 col-md-3">
+        <div class="card metric-card">
+          <div class="card-body">
+            <span class="metric-name">
+              Brands
+            </span>
+            <span class="metric-count">
+              {{ brands | happroxy : 'number' }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-6 col-md-3">
+        <div class="card metric-card">
+          <div class="card-body">
+            <span class="metric-name">
+              Products
+            </span>
+            <span class="metric-count">
+              {{ products | happroxy : 'number' }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-6 col-md-3">
+        <div class="card metric-card">
+          <div class="card-body">
+            <span class="metric-name">
+              Distributors
+            </span>
+            <span class="metric-count">
+              {{ sellers | happroxy : 'number' }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-6 col-md-3">
+        <div class="card metric-card">
+          <div class="card-body">
+            <span class="metric-name">
+              Areas
+            </span>
+            <span class="metric-count">
+              {{ areas | happroxy : 'number' }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-6 col-md-3">
+        <div class="card metric-card">
+          <div class="card-body">
+            <span class="metric-name">
+              Tasks
+            </span>
+            <span class="metric-count">
+              {{ tasks | happroxy : 'number' }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-6 col-md-3">
+        <div class="card metric-card">
+          <div class="card-body">
+            <span class="metric-name">
+              Promotions
+            </span>
+            <span class="metric-count">
+              {{ promotions | happroxy : 'number' }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-6 col-md-3">
+        <div class="card metric-card">
+          <div class="card-body">
+            <span class="metric-name">
+              Surveys
+            </span>
+            <span class="metric-count">
+              {{ surveys | happroxy : 'number' }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-6 col-md-3">
+        <div class="card metric-card">
+          <div class="card-body">
+            <span class="metric-name">
+              Information
+            </span>
+            <span class="metric-count">
+              {{ information | happroxy : 'number' }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="mode === modes[0] && user_group === 'sales'" class="row mt-5 graph-section">
+      <div class="col-6 col-md-3">
+        <div class="card metric-card">
+          <div class="card-body">
+            <span class="metric-name">
+              Referral Codes
+            </span>
+            <span class="metric-count">
+              {{ codes | happroxy : 'number' }}
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card metric-card">
+          <div class="card-body">
+            <span class="metric-name">
+              Sales Reps
+            </span>
+            <span class="metric-count">
+              {{ salesReps | happroxy : 'number' }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="mode === modes[0] && user_group === 'manager'" class="row mt-5 graph-section">
+      <div class="col-6 col-md-3">
+        <div class="card metric-card">
+          <div class="card-body">
+            <span class="metric-name">
+              Distributors
+            </span>
+            <span class="metric-count">
+              {{ sellers | happroxy : 'number' }}
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card metric-card">
+          <div class="card-body">
+            <span class="metric-name">
+              Sales Managers
+            </span>
+            <span class="metric-count">
+              {{ salesManagers | happroxy : 'number' }}
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card metric-card">
+          <div class="card-body">
+            <span class="metric-name">
+              Sales Reps
+            </span>
+            <span class="metric-count">
+              {{ salesReps | happroxy : 'number' }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Start Insights -->
+    <div *ngIf="mode === modes[0]" class="row graph-section mt-3">
+      <div *ngIf="user_group === 'admin'" class="col-12 col-md-6 mr-auto mb-3">
+          <div class="card h-100">
+            <div class="card-body text-center d-flex flex-column justify-content-center">
+              <a class="insight-add-block" href="javascript:void(0);" (click)="setMode(1)">
+                <div class="mb-3">
+                  <svg width="66" height="66" viewBox="0 0 66 66" fill="#3B54EC"><path d="M35 31.5L48.5 31.5 48.5 34.5 35 34.5 35 48 32 48 32 34.5 18.5 34.5 18.5 31.5 32 31.5 32 18 35 18 35 31.5ZM33 66C14.8 66 0 51.2 0 33 0 14.8 14.8 0 33 0 51.2 0 66 14.8 66 33 66 51.2 51.2 66 33 66ZM33 62.6C49.3 62.6 62.6 49.3 62.6 33 62.6 16.7 49.3 3.4 33 3.4 16.7 3.4 3.4 16.7 3.4 33 3.4 49.3 16.7 62.6 33 62.6Z"/></svg>
+                </div>
+                <b>Add Insight</b>
+              </a>
+            </div>
+          </div>
+      </div>
+
+      <ng-container *ngIf="user_group !== 'manager'; else accountManagerStats">
+        <div class="col-12 col-md-6 mb-3" *ngFor="let stat of statistics">
+          <div class="card h-100 graph-card">
+            <div class="card-header d-flex justify-content-between align-items-top">
+              <div class="graph-title-group">
+                  <h5 class="graph-title">
+                    {{stat.title}}
+                    <a *ngIf="user_group === 'admin'" href="javascript:void(0);" (click)="spawnEdit(stat.insight)">
+                      <svg class="graph-title__edit" width="13" height="13" viewBox="0 0 13 13"><path d="M0 10.3L0 13 2.7 13 10.7 5 8 2.3 0 10.3ZM12.8 2.9C13.1 2.6 13.1 2.2 12.8 1.9L11.1 0.2C10.8-0.1 10.4-0.1 10.1 0.2L8.8 1.5 11.5 4.2 12.8 2.9Z"/></svg>
+                    </a>
+                  </h5>
+                  <span class="graph-count" *ngIf="stat.data[0].data.length !== 0 && stat.insight.status === 'active'">{{ stat.current | happroxy : 'number' }}</span>
+              </div>
+              <div class="graph-meta" *ngIf="stat.data[0].data.length !== 0 && stat.insight.status === 'active'">
+                <span class="graph-recent">{{ stat.previous | happroxy : 'number' }}</span>
+                <ng-container *ngIf="checkNumber(stat.change)">
+                    <span class="graph-recent-up" *ngIf="stat.change > 0">+{{stat.change.toFixed(1)}}%</span>
+                    <span class="graph-recent-up" *ngIf="stat.change === 0">0%</span>
+                    <span class="graph-recent-down" *ngIf="stat.change < 0">{{stat.change.toFixed(1)}}%</span>
+                </ng-container>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="d-block">
+                <canvas *ngIf="stat.data[0].data.length !== 0 && stat.insight.status === 'active'" height="100" mdbChart
+                    [chartType]="chartType"
+                    [datasets]="stat.data"
+                    [colors]="chartColors"
+                    [labels]="stat.labels"
+                    [options]="chartOptions">
+                </canvas>
+                <div *ngIf="stat.data[0].data.length === 0 && stat.insight.status === 'active'" class="empty-state text-center">
+                  <img src="../../../../assets/img/empty-unknown.svg" alt="">
+                  <p class="mt-2">No data has been recorded for this insight yet.</p>
+                </div>
+                <div *ngIf="stat.insight.status !== 'active'" class="empty-state text-center">
+                  <img src="../../../../assets/img/empty-unknown.svg" alt="">
+                  <p class="mt-2">This insight is inactive. <a href="javascript:void(0);" (click)="spawnEdit(stat.insight)">Edit Insight</a></p>
+                </div>
+              </div>
+            </div>
+            <div class="card-footer d-flex justify-content-between align-items-center">
+              <div><b>Period:</b> {{fetchFrequency(stat.insight.ago)}}</div>
+              <select *ngIf="stat.data[0].data.length !== 0 && stat.insight.status === 'active'" (change)="toggleDelta($event, stat.insight._id)" [name]="stat.insight._id" [id]="stat.insight._id" class="form-control form-control-sm w-50">
+                <option [selected]="stat.deltaMode === false" value="true">Cummulative</option>
+                <option [selected]="stat.deltaMode === true" value="false">Differential</option>
+              </select>
+              <!-- <div>
+                <input type="checkbox" id="{{stat.insight._id}}" />
+                <label (click)="toggleDelta(stat.insight._id, deltaStat);" for="{{stat.insight._id}}" role="toggle">Toggle</label>
+              </div> -->
+            </div>
+          </div>
+        </div>
+      </ng-container>
+      <ng-template #accountManagerStats>
+        <ng-container *ngFor="let __stat of statisticsAccountManager">
+          <div class="col-12 mb-3 mt-3">
+            <h5>{{__stat.seller.name}}</h5>
+            <div class="row graph-section mt-3">
+              <div class="col-12 col-md-6 mb-3" *ngFor="let stat of __stat.lineChartData">
+                <div class="card h-100 graph-card">
+                  <div class="card-header d-flex justify-content-between align-items-top">
+                    <div class="graph-title-group">
+                        <h5 class="graph-title">
+                          {{stat.title}}
+                          <a *ngIf="user_group === 'admin'" href="javascript:void(0);" (click)="spawnEdit(stat.insight)">
+                            <svg class="graph-title__edit" width="13" height="13" viewBox="0 0 13 13"><path d="M0 10.3L0 13 2.7 13 10.7 5 8 2.3 0 10.3ZM12.8 2.9C13.1 2.6 13.1 2.2 12.8 1.9L11.1 0.2C10.8-0.1 10.4-0.1 10.1 0.2L8.8 1.5 11.5 4.2 12.8 2.9Z"/></svg>
+                          </a>
+                        </h5>
+                        <span class="graph-count" *ngIf="stat.data[0].data.length !== 0 && stat.insight.status === 'active'">{{ stat.current | happroxy : 'number' }}</span>
+                    </div>
+                    <div class="graph-meta" *ngIf="stat.data[0].data.length !== 0 && stat.insight.status === 'active'">
+                      <span class="graph-recent">{{ stat.previous | happroxy : 'number' }}</span>
+                      <ng-container *ngIf="checkNumber(stat.change)">
+                          <span class="graph-recent-up" *ngIf="stat.change > 0">+{{stat.change.toFixed(1)}}%</span>
+                          <span class="graph-recent-up" *ngIf="stat.change === 0">0%</span>
+                          <span class="graph-recent-down" *ngIf="stat.change < 0">{{stat.change.toFixed(1)}}%</span>
+                      </ng-container>
+                    </div>
+                  </div>
+                  <div class="card-body">
+                    <div class="d-block">
+                      <canvas *ngIf="stat.data[0].data.length !== 0 && stat.insight.status === 'active'" height="100" mdbChart
+                          [chartType]="chartType"
+                          [datasets]="stat.data"
+                          [colors]="chartColors"
+                          [labels]="stat.labels"
+                          [options]="chartOptions">
+                      </canvas>
+                      <div *ngIf="stat.data[0].data.length === 0 && stat.insight.status === 'active'" class="empty-state text-center">
+                        <img src="../../../../assets/img/empty-unknown.svg" alt="">
+                        <p class="mt-2">No data has been recorded for this insight yet.</p>
+                      </div>
+                      <div *ngIf="stat.insight.status !== 'active'" class="empty-state text-center">
+                        <img src="../../../../assets/img/empty-unknown.svg" alt="">
+                        <p class="mt-2">This insight is inactive. <a href="javascript:void(0);" (click)="spawnEdit(stat.insight)">Edit Insight</a></p>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="card-footer d-flex justify-content-between align-items-center">
+                    <div><b>Period:</b> {{fetchFrequency(stat.insight.ago)}}</div>
+                    <select *ngIf="stat.data[0].data.length !== 0 && stat.insight.status === 'active'" (change)="toggleDeltaAccountManager($event, stat.insight._id)" [name]="stat.insight._id" [id]="stat.insight._id" class="form-control form-control-sm w-50">
+                      <option [selected]="stat.deltaMode === false" value="true">Cummulative</option>
+                      <option [selected]="stat.deltaMode === true" value="false">Differential</option>
+                    </select>
+                    <!-- <div>
+                      <input type="checkbox" id="{{stat.insight._id}}" />
+                      <label (click)="toggleDelta(stat.insight._id, deltaStat);" for="{{stat.insight._id}}" role="toggle">Toggle</label>
+                    </div> -->
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <hr>
+        </ng-container>
+      </ng-template>
+      
+      <!-- <div class="col-12 col-md-4" *ngIf="user_group === 'admin'">
+        <div class="card h-100 graph-card">
+          <div class="card-header d-flex justify-content-between align-items-top">
+            <div class="graph-title-group">
+                <h5 class="graph-title">Shipment</h5>
+                <span class="graph-count">41,001</span>
+            </div>
+            <div class="graph-meta">
+              <span class="graph-recent">3,426</span>
+              <span class="graph-recent-up">+2.4%</span>
+              <span class="graph-recent-down">-0.2%</span>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="d-block">
+              <canvas height="100" mdbChart
+                  [chartType]="chartType"
+                  [datasets]="orderData"
+                  [colors]="chartColors"
+                  [labels]="orderLabels"
+                  [options]="chartOptions">
+              </canvas>
+            </div>
+          </div>
+          <div class="card-footer d-flex justify-content-between align-items-center">
+            <div><b>Period:</b> Weekly</div>
+            <select name="" id="" class="form-control form-control-sm w-50">
+              <option value="">Cummulative</option>
+              <option value="">Differential</option>
+            </select>
+          </div>
+        </div>
+      </div> -->
+    </div>
+    <!-- End Graph Cards -->
+    <!-- <div *ngIf="user_group === 'manufacturer_staff'" class="row mt-5">
+      <div class="col-6 col-md-3 my-2">
+        <div class="card metric-card">
+          <div class="card-body">
+              <div class="metric-card-info">
+                <h2 class="metric-count">{{areas}}</h2>
+                <h5 class="metric-name">Areas Covered</h5>
+              </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3 my-2">
+        <div class="card metric-card">
+          <div class="card-body">
+              <div class="metric-card-info">
+                <h2 class="metric-count">{{locationAreas}}</h2>
+                <h5 class="metric-name">Locations Covered</h5>
+              </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3 my-2">
+        <div class="card metric-card">
+          <div class="card-body">
+              <div class="metric-card-info">
+                <h2 class="metric-count">{{brands}}</h2>
+                <h5 class="metric-name">Brands</h5>
+              </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3 my-2">
+        <div class="card metric-card">
+          <div class="card-body">
+              <div class="metric-card-info">
+                <h2 class="metric-count">{{products}}</h2>
+                <h5 class="metric-name">Products</h5>
+              </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3 my-2">
+        <div class="card metric-card">
+          <div class="card-body">
+              <div class="metric-card-info">
+                <h2 class="metric-count">{{sellers}}</h2>
+                <h5 class="metric-name">Distributors</h5>
+              </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3 my-2">
+        <div class="card metric-card">
+          <div class="card-body">
+              <div class="metric-card-info">
+                <h2 class="metric-count">{{promotions}}</h2>
+                <h5 class="metric-name">Promotions</h5>
+              </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3 my-2">
+        <div class="card metric-card">
+          <div class="card-body">
+              <div class="metric-card-info">
+                <h2 class="metric-count">{{tasks}}</h2>
+                <h5 class="metric-name">Tasks</h5>
+              </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3 my-2">
+        <div class="card metric-card">
+          <div class="card-body">
+              <div class="metric-card-info">
+                <h2 class="metric-count">{{outstanding | customCurrency}}</h2>
+                <h5 class="metric-name">Outstanding Fees</h5>
+              </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div *ngIf="user_group === 'sales'" class="row mt-5">
+      <div class="col-6 col-md-3 my-2">
+        <div class="card metric-card">
+          <div class="card-body">
+              <div class="metric-card-info">
+                <h2 class="metric-count">{{codes}}</h2>
+                <h5 class="metric-name">Referral Codes</h5>
+              </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3 my-2">
+        <div class="card metric-card">
+          <div class="card-body">
+              <div class="metric-card-info">
+                <h2 class="metric-count">{{salesReps}}</h2>
+                <h5 class="metric-name">Sales Reps</h5>
+              </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div *ngIf="user_group === 'manager'" class="row mt-5">
+      <div class="col-6 col-md-3 my-2">
+        <div class="card metric-card">
+          <div class="card-body">
+              <div class="metric-card-info">
+                <h2 class="metric-count">{{sellers}}</h2>
+                <h5 class="metric-name">Distributors</h5>
+              </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3 my-2">
+        <div class="card metric-card">
+          <div class="card-body">
+              <div class="metric-card-info">
+                <h2 class="metric-count">{{salesManagers}}</h2>
+                <h5 class="metric-name">Sales managers</h5>
+              </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3 my-2">
+        <div class="card metric-card">
+          <div class="card-body">
+              <div class="metric-card-info">
+                <h2 class="metric-count">{{salesReps}}</h2>
+                <h5 class="metric-name">Sales reps</h5>
+              </div>
+          </div>
+        </div>
+      </div>
+    </div> -->
+    
+    <ng-container *ngIf="user_group === 'admin'">      
+      <div *ngIf="mode === modes[1]" class="row form justify-content-center my-5">
+        <div class="col-12 col-md-7">
+          <div class="card panel-card">
+            <div class="card-header">
+              <h5 class="card-title">New Insight</h5>
+            </div>
+            <div class="card-body">
+              <div class="row mt-3"></div>
+              <div class="row">
+                <div class="col-12">
+                  <div class="form-group">
+                    <label for="title">Title</label>
+                    <input name="title" class="form-control" id="title" aria-describedby="title" [(ngModel)]="create.title"
+                    #title="ngModel" [ngModelOptions]="{standalone: true}" />
+                    <small class="form-error" *ngIf="title.value === '' && (title.dirty || title.touched)">
+                      Enter a title!
+                    </small>
+                  </div>
+                </div>
+                <div class="col-12 col-md-6">
+                  <div class="form-group">
+                    <label for="level">Level</label>
+                    <select (change)="fetchTags1($event, create.target)" name="level" id="level" class="form-control" [(ngModel)]="create.level"
+                      #level="ngModel" [ngModelOptions]="{standalone: true}">
+                      <option value="select" selected>-- Select a level --</option>
+                      <option *ngFor="let level of levels" [value]="[level.value]">{{level.name}}</option>
+                    </select>
+                    <small class="form-error" *ngIf="level.value === '' && (level.dirty || level.touched)">
+                      Select a level!
+                    </small>
+                  </div>
+                </div>
+                <div class="col-12 col-md-6">
+                  <div class="form-group">
+                    <label for="target">Target</label>
+                    <select (change)="fetchTags($event, create.level)" name="target" id="target" class="form-control" [(ngModel)]="create.target"
+                      #target="ngModel" [ngModelOptions]="{standalone: true}">
+                      <option value="select" selected>-- Select a target --</option>
+                      <option *ngFor="let target of targets" [value]="[target.value]">{{target.name}}</option>
+                    </select>
+                    <small class="form-error" *ngIf="target.value === 'select' && (target.dirty || target.touched)">Select a target!</small>
+                  </div>
+                </div>
+                <div class="col-12 col-md-6">
+                  <div class="form-group">
+                    <label for="type">Type</label>
+                    <select [disabled]="create.target === 'select' || create.level === 'select' || !types" class="form-control" id="type" [(ngModel)]="create.type" #type="ngModel"
+                      [ngModelOptions]="{standalone: true}" name="type">
+                      <option value="select" selected>-- Select a type --</option>
+                      <option *ngFor="let type of types" [value]="[type]">{{sentenceCase(type)}}</option>
+                    </select>
+                    <small class="form-error" *ngIf="type.value === 'select' && (type.dirty || type.touched)">Select a type!</small>
+                  </div>
+                </div>
+                <div class="col-12 col-md-6">
+                  <div class="form-group">
+                    <label for="frequency">Frequency</label>
+                    <select name="frequency" id="frequency" class="form-control" [(ngModel)]="create.ago"
+                      #frequency="ngModel" [ngModelOptions]="{standalone: true}">
+                      <option value="select" selected>-- Select a frequency --</option>
+                      <option *ngFor="let frequency of frequencies" [value]="[frequency.value]">{{frequency.name}}</option>
+                    </select>
+                    <small class="form-error" *ngIf="frequency.value === 'select' && (frequency.dirty || frequency.touched)">Select a frequency!</small>
+                  </div>
+                </div>
+                <div class="col-12 col-md-6">
+                  <div class="form-group">
+                    <label for="status">Status</label>
+                    <select class="form-control" id="select" [(ngModel)]="create.status" #status="ngModel"
+                      [ngModelOptions]="{standalone: true}" name="status">
+                      <option value="select">-- Select a status --</option>
+                      <option *ngFor="let status of statuses" [value]="[status.value]">{{status.name}}</option>
+                    </select>
+                    <small class="form-error" *ngIf="status.value === 'select' && (status.dirty || status.touched)">
+                      Select a status
+                    </small>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card-footer">
+              <button [disabled]="checkValid(create) === false" (click)="createAction()" type="submit" class="btn btn-primary">
+                Create
+              </button>
+              <button (click)="closeCreate(0)" class="btn btn-light float-right">
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="mode === modes[2]" class="row mt-3">
+        <div class="col-md-12">
+          <button class="btn btn-danger btn-sm float-right" (click)="spawnDelete(currentInsight._id)">
+            Delete Insight
+          </button>
+        </div>
+      </div>
+
+      <div *ngIf="mode === modes[2]" class="row form justify-content-center my-5">
+        <div class="col-12 col-md-7">
+          <div class="card panel-card">
+            <div class="card-header">
+              <h5 class="card-title">Edit Insight</h5>
+            </div>
+            <div class="card-body">
+              <div class="row mt-3"></div>
+              <div class="row">
+                <div class="col-12">
+                  <div class="form-group">
+                    <label for="title">Title</label>
+                    <input name="title" class="form-control" id="title" aria-describedby="title" [(ngModel)]="edit.title"
+                    #title="ngModel" [ngModelOptions]="{standalone: true}" />
+                    <small class="form-error" *ngIf="title.value === '' && (title.dirty || title.touched)">
+                      Enter a title!
+                    </small>
+                  </div>
+                </div>
+                <div class="col-12 col-md-6">
+                  <div class="form-group">
+                    <label for="level">Level</label>
+                    <select disabled name="level" id="level" class="form-control" [(ngModel)]="edit.level"
+                      #level="ngModel" [ngModelOptions]="{standalone: true}">
+                      <option value="select" selected>-- Select a level --</option>
+                      <option *ngFor="let level of levels" [value]="[level.value]">{{level.name}}</option>
+                    </select>
+                    <small class="form-error" *ngIf="level.value === '' && (level.dirty || level.touched)">
+                      Select a level!
+                    </small>
+                  </div>
+                </div>
+                <div class="col-12 col-md-6">
+                  <div class="form-group">
+                    <label for="target">Target</label>
+                    <select disabled name="target" id="target" class="form-control" [(ngModel)]="edit.target"
+                      #target="ngModel" [ngModelOptions]="{standalone: true}">
+                      <option value="select" selected>-- Select a target --</option>
+                      <option *ngFor="let target of targets" [value]="[target.value]">{{target.name}}</option>
+                    </select>
+                    <small class="form-error" *ngIf="target.value === 'select' && (target.dirty || target.touched)">Select a target!</small>
+                  </div>
+                </div>
+                <div class="col-12 col-md-6">
+                  <div class="form-group">
+                    <label for="type">Type</label>
+                    <select disabled class="form-control" id="type" [(ngModel)]="edit.type" #type="ngModel"
+                      [ngModelOptions]="{standalone: true}" name="type">
+                      <option value="select" selected>-- Select a type --</option>
+                      <option *ngFor="let type of types" [value]="[type]">{{sentenceCase(type)}}</option>
+                    </select>
+                    <small class="form-error" *ngIf="type.value === 'select' && (type.dirty || type.touched)">Select a type!</small>
+                  </div>
+                </div>
+                <div class="col-12 col-md-6">
+                  <div class="form-group">
+                    <label for="frequency">Frequency</label>
+                    <select disabled name="frequency" id="frequency" class="form-control" [(ngModel)]="edit.ago"
+                      #frequency="ngModel" [ngModelOptions]="{standalone: true}">
+                      <option value="select" selected>-- Select a frequency --</option>
+                      <option *ngFor="let frequency of frequencies" [value]="[frequency.value]">{{frequency.name}}</option>
+                    </select>
+                    <small class="form-error" *ngIf="frequency.value === 'select' && (frequency.dirty || frequency.touched)">Select a frequency!</small>
+                  </div>
+                </div>
+                <div class="col-12 col-md-6">
+                  <div class="form-group">
+                    <label for="status">Status</label>
+                    <select class="form-control" id="select" [(ngModel)]="edit.status" #status="ngModel"
+                      [ngModelOptions]="{standalone: true}" name="status">
+                      <option value="select">-- Select a status --</option>
+                      <option *ngFor="let status of statuses" [value]="[status.value]">{{status.name}}</option>
+                    </select>
+                    <small class="form-error" *ngIf="status.value === 'select' && (status.dirty || status.touched)">
+                      Select a status
+                    </small>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card-footer">
+              <button [disabled]="checkValid(edit) === false" (click)="editAction()" type="submit" class="btn btn-primary">
+                Edit
+              </button>
+              <button (click)="closeCreate(0)" class="btn btn-light float-right">
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+  </div>
+</div>

@@ -1,0 +1,31 @@
+<nav class="navbar navbar-expand-lg">
+	<!--the property 'title' is a prop that will be supplied from .ts files of components that app-main-nav will be utilized in-->
+	
+  <div id="toggleMenuButton" class="navbar-toggler hamburger nod-block nod-md-none">
+    <span></span>
+    <span></span>
+    <span></span>
+	</div>
+
+<ng-container *ngIf="!mode || mode === 0; else backNav">
+	<span class="navbar-brand mb-0 h1 mr-auto ml-3 d-block d-md-none"> {{title}} </span>
+	<span class="navbar-brand mb-0 h1 mr-auto d-none d-md-block"> {{title}} </span>
+</ng-container>
+<ng-template #backNav>
+	<span (click)="goBack()" class="navbar-back mb-0 mr-auto ml-3 d-block d-md-none"> &larr; Back </span>
+	<span (click)="goBack()" class="navbar-back mb-0 mr-auto d-none d-md-block"> &larr; Back </span>
+</ng-template>
+
+
+	<ul class="navbar-nav -auto">
+		<li class="nav-item dropdown">
+			<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+				<img class="avatar avatar-sm" src="../../../../assets/img/avatar-2.png" alt="">
+			</a>
+			<div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+				<a class="dropdown-item" [routerLink]="['/main/profile']">Profile</a>
+				<a class="dropdown-item" href="javascript:void(0);" (click)="logOut()">Log Out</a>
+			</div>
+		</li>
+	</ul>
+</nav>
